@@ -70,12 +70,12 @@ public class GreenHousescheduler {
     public static void main(String[] args){
         GreenHousescheduler gh = new GreenHousescheduler();
         ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(15);
-        schedule(scheduler,gh.new Terminate(scheduler),1000,TimeUnit.MILLISECONDS);
-        repeat(scheduler,gh.new Bell(), 200, 3000,TimeUnit.MILLISECONDS);
-        repeat(scheduler,gh.new LightOn(),0,200,TimeUnit.MILLISECONDS);
-        repeat(scheduler,gh.new LightOff(),100,200,TimeUnit.MILLISECONDS);
-        repeat(scheduler,gh.new WaterOn(),0,600,TimeUnit.MILLISECONDS);
-        repeat(scheduler,gh.new WaterOff(),300,600,TimeUnit.MILLISECONDS);
+        schedule(scheduler,gh.new Terminate(scheduler),6000,TimeUnit.MILLISECONDS);
+        repeat(scheduler,gh.new Bell(), 1000, 3000,TimeUnit.MILLISECONDS);
+        repeat(scheduler,gh.new LightOn(),0,2000,TimeUnit.MILLISECONDS);
+        repeat(scheduler,gh.new LightOff(),2000,2000,TimeUnit.MILLISECONDS);
+        repeat(scheduler,gh.new WaterOn(),0,6000,TimeUnit.MILLISECONDS);
+        repeat(scheduler,gh.new WaterOff(),300,6000,TimeUnit.MILLISECONDS);
         LocalTime now = LocalTime.now();
         LocalTime morning = LocalTime.of(7,0,0);
         LocalTime night = LocalTime.of(19,0,0);
