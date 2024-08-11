@@ -4,6 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 
 public class GreenHousescheduler {
+
+//classi degli events
+    
     private class LightOn implements Runnable{
         public void run(){
             System.out.println("Accendi le luci ");
@@ -67,6 +70,8 @@ public class GreenHousescheduler {
         scheduler.scheduleAtFixedRate(event, initialDelay, period, u);
     }
 
+    //main
+    //Da fixare i vari delay initial & period...funziona tutto ma è troppo veloce
     public static void main(String[] args){
         GreenHousescheduler gh = new GreenHousescheduler();
         ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(15);
