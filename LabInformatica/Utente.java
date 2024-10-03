@@ -42,9 +42,17 @@ public abstract class Utente implements Runnable {
             e.printStackTrace();
         }
     }
-/*
-* metodo per richiedere al tutor l'accesso
-*/
+    /**
+     *
+     * @return matricola utente
+     */
+    public int getMatricola(){
+        return matricola;
+    }
+
+    /**
+    * metodo per richiedere al tutor l'accesso
+    */
 
     abstract void richiestaAccesso();
 
