@@ -38,11 +38,11 @@ class FileServer {
                 try (Socket connectionSocket = listenSocket.accept();
                      BufferedReader inFromClient = new BufferedReader (new InputStreamReader(connectionSocket.getInputStream()));
                      DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream())) {
-                    //
+                    //permette al client di richiedere un file (non funziona bene)
                     fileName = inFromClient.readLine();
                     String message = "File richiesto " + fileName;
                     outToClient.writeBytes(message);
-                    //
+                    //da qui funziona bene
                     File file = new File(fileName);
                     //converte il file in un array di byte
                     int numOfByte = (int) file.length();
@@ -51,6 +51,7 @@ class FileServer {
                         inFile.read(fileInBytes);
                         outToClient.write(fileInBytes, 0, numOfByte);
                         outToClient.flush();
+                    //    connectionSocket.close(); chiude connection socket
                     } catch (FileNotFoundException e) {
                         String message1 = "File not found";
                         outToClient.writeBytes(message1);
@@ -58,7 +59,9 @@ class FileServer {
                         e1.printStackTrace();
                     }
                 }
+            //    listenSocket.close(); chiude il server
             }
+
         }
     }
 }

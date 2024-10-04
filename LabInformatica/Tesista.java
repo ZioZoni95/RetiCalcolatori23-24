@@ -22,7 +22,7 @@ public class Tesista extends Utente{
     void richiestaAccesso(){
         System.out.printf("Tesista %d ask for Pc : %d\n",this.getMatricola(),this.id_pc);
         tutor.texAccessRequest(this,id_pc);
-        System.out.printf("Tesista %d have access to Pc : %d",this.getMatricola(),this.id_pc);
+        System.out.printf("Tesista %d have access to Pc : %d\n",this.getMatricola(),this.id_pc);
     }
 
     @Override
