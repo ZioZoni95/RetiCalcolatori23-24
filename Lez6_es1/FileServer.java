@@ -14,7 +14,7 @@ import java.net.*;
 
 class FileServer {
     public static void main (String[] args) throws Exception {
-        String fileName = "/home/antoninoc/file.txt";
+        String fileName = "home/antoninoc/RetiCalcolatori23-23/Lez6_es1/file.txt";
         //verifico che la porta viene fornita come primo comando dalla CLI
         //se nessun argomento è dato, usa la porta 6789
         int myPort = 6789;
