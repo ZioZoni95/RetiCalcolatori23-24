@@ -16,6 +16,11 @@ public class EchoServer {
                         System.out.println("Client sent: " + message);
                         writer.write(message + "\r\n");
                         writer.flush();
+                        /*if((message = reader.readLine().trim()).equals("exit")){
+                            client.close();
+                            server.close();
+                            break;
+                        }*/
                     }
                 }catch(IOException e){
                     System.out.println("Client closed connection or error appeared ");
