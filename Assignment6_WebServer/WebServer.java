@@ -1,7 +1,6 @@
 package Assignment6_WebServer;
 import java.io.IOException;
 import java.net.*;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +35,7 @@ class WebServer {
         }
 
         //creazione del threadpool che gestisce le richieste
-        ExecutorService pool = new Executors.newFixedThreadPool(N_WORKERS);
+        ExecutorService pool = Executors.newFixedThreadPool(N_WORKERS);
         //ExecutorService pool = Executors.newCachedThreadPool();
         try(ServerSocket server = new ServerSocket(myPort)){
             System.out.printf("Web server waiting for connection on port %d\n", myPort);
@@ -44,7 +43,19 @@ class WebServer {
                 //rimane in listening fino a quando non riceve una richiesta
                 Socket client = server.accept();
                 //invio al threadpool la richiesta di gestione del client
-               // pool.execute(new RequestManager(client));
+                pool.execute(new RequestManager(client));
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        finally {
+            //gentle-termination of threadpool
+            pool.shutdown();
+            try{
+                while(!pool.isTerminated())
+                    pool.awaitTermination(60, TimeUnit.SECONDS);
+            }catch(InterruptedException e){
+                e.printStackTrace();
             }
         }
     }

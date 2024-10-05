@@ -1,11 +1,5 @@
 package Assignment6_WebServer;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.Socket;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -43,7 +37,7 @@ public class RequestManager implements Runnable {
     public void run(){
         //associa gli stream di input (read) e output (write) al socket
         try(BufferedReader inFromClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            DataOutputStream outFromClient = new DataOutputStream(client.getOutputStream());){
+            DataOutputStream outToClient = new DataOutputStream(client.getOutputStream());){
 
             //recover the first request line to get the requested "method"
             String requestMessageLine = inFromClient.readLine();
@@ -101,6 +95,26 @@ public class RequestManager implements Runnable {
                 response.append(CR);
 
                 //invia al client la risposta del server
+                outToClient.writeBytes(response.toString());
+                outToClient.write(messageResponse, 0, messageResponse.length);
+
+                //stampa la risposta del server
+                System.out.println("----------------------------");
+                System.out.printf("Response:\n%s%s\n",response.toString(), new String(messageResponse));
+                System.out.println("----------------------------");
+            }
+            else{
+                System.out.println("Bad Request message");
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        finally {
+            //chiude il socket del client
+            try{
+                client.close();
+            }catch (IOException e){
+                e.printStackTrace();
             }
         }
     }
