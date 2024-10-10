@@ -1,8 +1,13 @@
-package HOTELIER;
+package rmi;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.io.File;
+import java.io.IOException;
 import java.rmi.registry.Registry;
+import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +21,7 @@ public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERServi
     //costruttore del server
     protected HOTELIERServer() throws RemoteException{
         super();
-        users = new ArrayList<>();
+
     }
 
     /**

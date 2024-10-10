@@ -1,4 +1,6 @@
-package HOTELIER;
+package model;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /**
  * Queta classe modella gli utenti che si registrano e interagiscono con il sistema inservendo recensioni e
