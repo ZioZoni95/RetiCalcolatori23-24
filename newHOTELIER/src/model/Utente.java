@@ -9,14 +9,14 @@ import java.io.Serializable;
 public class Utente {
     private final String username;
     private final String password;
-    private String eMail;
+  //  private String eMail;
     private int numRecensioni;
     private String rank; /*rank dell'utente basato sul num di Rencesioni*/
 
     //Costruttore
-    public Utente (String username, String password, String eMail){
+    public Utente (String username, String password/*, String eMail*/){
         this.username = username;
-        this.eMail = eMail;
+       // this.eMail = eMail;
         this.password = password;
         this.numRecensioni = 0;
         this.rank = "Recensore";  //rank iniziale
@@ -48,10 +48,11 @@ public class Utente {
         return username;
     }
 
-    //Getter per l'emeail
+    /*Getter per l'emeail
     public String geteMail(){
         return eMail;
     }
+    */
 
     //Getter per il numRecensioni
 
