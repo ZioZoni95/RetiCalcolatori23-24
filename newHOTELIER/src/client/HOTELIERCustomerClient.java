@@ -1,8 +1,10 @@
-package rmi;
+package client;
+import rmi.HOTELIERClientCallback;
+
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-public class HOTELIERCustomerClient extends UnicastRemoteObject implements HOTELIERClientCallback{
+public class HOTELIERCustomerClient extends UnicastRemoteObject implements HOTELIERClientCallback {
     /**
      * Costruttore del client
      */

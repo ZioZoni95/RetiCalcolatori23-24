@@ -7,7 +7,7 @@ public interface HOTELIERService extends Remote {
     //Metodo per registrare un ututente e inviare una notifica al clietn
     String registerUser(String username, String password,
                         HOTELIERClientCallback clientCallback) throws RemoteException;
-    String logInUser(String username, String password, String email,
+    String logInUser(String username, String password,
                         HOTELIERClientCallback clientCallback) throws RemoteException;
 
     /**

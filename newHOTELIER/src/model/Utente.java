@@ -6,11 +6,18 @@ import java.io.Serializable;
  * Queta classe modella gli utenti che si registrano e interagiscono con il sistema inservendo recensioni e
  * ottenendo distintivi in base al #recensioni fatte
  */
-public class Utente {
+public class Utente implements Serializable{
+    @JsonProperty("username")
     private final String username;
+
+    @JsonProperty("password")
     private final String password;
   //  private String eMail;
+
+    @JsonProperty("numRecensioni")
     private int numRecensioni;
+
+    @JsonProperty("rank")
     private String rank; /*rank dell'utente basato sul num di Rencesioni*/
 
     //Costruttore

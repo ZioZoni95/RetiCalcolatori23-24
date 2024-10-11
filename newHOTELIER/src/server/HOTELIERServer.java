@@ -1,16 +1,15 @@
-package rmi;
+package server;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.Utente;
+import rmi.HOTELIERClientCallback;
+import rmi.HOTELIERService;
 
-import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.io.File;
 import java.io.IOException;
-import java.rmi.registry.Registry;
-import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,14 +66,13 @@ public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERServi
         //Crea un nuovo user e lo aggiunge alla lista degli utenti
         Utente newUser = new Utente(username, password);
         users.add(newUser);
-
-
+        saveUsersToFile(users, "resources/utenti.json");
         clientCallback.notifyClient("Registrazione avvenuta con Successo per l'utente " + username);
         return "SUCCESS";
     }
 
     @Override
-    public String logInUser(String username, String password, String email, HOTELIERClientCallback clientCallback) throws RemoteException {
+    public String logInUser(String username, String password, HOTELIERClientCallback clientCallback) throws RemoteException {
         for (Utente user : users) { //da controllare
             if (user.getUsername().equals(username)) {
                 if (user.checkPassword(password)) {
@@ -91,6 +89,7 @@ public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERServi
         return "Error: Utente non trovato:";
     }
 
+
     @Override
     public void logOUTUser(String username) throws RemoteException {
         if (loggedClients.remove(username) != null) { //rimuovi il client dalla mappa dei loggati
@@ -99,20 +98,44 @@ public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERServi
             System.out.println("L'utente " + username + "non era loggato");
         }
     }
+
     //persistenza file user json
-    private List<Utente> loadUsersFromFile(String filePath){
+    private List<Utente> loadUsersFromFile(String filePath) {
         ObjectMapper mapper = new ObjectMapper();
         File file = new File(filePath);
 
-        if(!file.exists() || file.length() == 0){
+        if (!file.exists() || file.length() == 0) {
             System.out.println("Nessun dato trovato nel file degli utenti. Creazione di un nuovo file");
             return new ArrayList<>();
         }
-        try{
-            return mapper.readValue(file, new TypeReference<List<Utente>>(){});
-        }catch (IOException e){
+        try {
+            return mapper.readValue(file, new TypeReference<List<Utente>>() {
+            });
+        } catch (IOException e) {
             System.out.println("Errore nel caricamento dei dati degli utenyi " + e.getMessage());
             return new ArrayList<>();
         }
     }
+
+    private void saveUsersToFile(List<Utente> users, String filePath) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new File(filePath), users);
+            System.out.println("Dati degli utenti salvati correttamente.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void notifyClients(String message) throws RemoteException {
+        for (HOTELIERClientCallback clientCallback : loggedClients.values()) {
+            try {
+                clientCallback.notifyClient(message);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
+
+
