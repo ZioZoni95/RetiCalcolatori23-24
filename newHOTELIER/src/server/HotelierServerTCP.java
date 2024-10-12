@@ -26,7 +26,7 @@ public class HotelierServerTCP {
 
     public void startServer() {
         try (ServerSocket serverSocket = new ServerSocket();) {
-            InetSocketAddress serverAddress = new InetSocketAddress("localhost", 8081);
+            InetSocketAddress serverAddress = new InetSocketAddress("localhost/HOTELIERService",8081);
             serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(), PORT));
             // System.out.println("Server TCP avviato sulla porta " + PORT);
             while (true) {

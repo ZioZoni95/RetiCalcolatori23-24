@@ -37,6 +37,10 @@ public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERServi
     //costruttore del server
     protected HOTELIERServer() throws RemoteException {
         super();
+        users = loadUsersFromFile("/resources/utenti.json");
+        if(users == null){
+            users = new ArrayList<>();
+        }
         loggedClients = new HashMap<>(); // inizializza la mappa degli utenti loggati
     }
 
