@@ -23,7 +23,7 @@ public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERServi
     /**
      * Lista degli utenti registrati
      */
-    private List<Utente> users;
+    private List<Utente> users = null;
 
     /**
      * Attributi per gli hotel e Map da aggiungere
