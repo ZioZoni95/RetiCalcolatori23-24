@@ -23,7 +23,7 @@ public class HOTELIERCustomerClientMain {
     public static void startRMIClient() throws Exception{
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Avvio del client RMI...");
+        System.out.println("Avvio del client RMI...HOTELIER Service il vostro recensore di sti cazzi");
         HOTELIERClientCallback client = new HOTELIERCustomerClient();
         HOTELIERService service = (HOTELIERService) Naming.lookup("rmi://localhost:1099/HOTELIERService");
 
@@ -55,6 +55,7 @@ public class HOTELIERCustomerClientMain {
                         System.out.println("Errore durante la registrazione: " + e.getMessage());
                         e.printStackTrace();
                     }
+                    break;
                     /*
                     String result = service.registerUser(username, password,client);
                     //test message

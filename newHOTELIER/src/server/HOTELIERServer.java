@@ -70,7 +70,7 @@ public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERServi
         //Crea un nuovo user e lo aggiunge alla lista degli utenti
         Utente newUser = new Utente(username, password);
         users.add(newUser);
-        saveUsersToFile(users, "resources/utenti.json");
+        saveUsersToFile(users,"resources/utenti.json");
         clientCallback.notifyClient("Registrazione avvenuta con Successo per l'utente " + username);
         return "SUCCESS";
     }

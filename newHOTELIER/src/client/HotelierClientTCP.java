@@ -9,7 +9,7 @@ import java.util.Scanner;
  */
 public class HotelierClientTCP {
     private static final String SERVER_ADDRESS = "localhost";
-    private static final int SERVER_PORT = 8080;
+    private static final int SERVER_PORT = 8081;
 
     public void startClient(){
         Socket socket = new Socket();
