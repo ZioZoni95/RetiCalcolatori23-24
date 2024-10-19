@@ -1,10 +1,9 @@
 package client;
 import rmi.HOTELIERClientCallback;
-import rmi.HOTELIERService;
+import server.rmi.HOTELIERServerRMI;
 
 import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 
 public class HOTELIERCustomerClientMain {
@@ -25,7 +24,7 @@ public class HOTELIERCustomerClientMain {
 
         System.out.println("Avvio del client RMI...HOTELIER Service il vostro recensore di sti cazzi");
         HOTELIERClientCallback client = new HOTELIERCustomerClient();
-        HOTELIERService service = (HOTELIERService) Naming.lookup("rmi://localhost:1099/HOTELIERService");
+        HOTELIERServerRMI service = (HOTELIERServerRMI) Naming.lookup("rmi://localhost:1099/HOTELIERService");
 
         while (true) {
             System.out.println("Seleziona un'opzione:");

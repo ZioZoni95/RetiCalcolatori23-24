@@ -1,5 +1,4 @@
 package server;
-import rmi.HOTELIERService;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -22,6 +21,8 @@ public class HOTELIERServerMain {
         //crea un'istanza del servizio
         HOTELIERServer rmiServer = new HOTELIERServer();
 
+
+
         //Crea il registry RMI sulla porta
         Registry registry = LocateRegistry.createRegistry(1099);
 
@@ -32,7 +33,7 @@ public class HOTELIERServerMain {
     }
 
     private static void startTCPServer() {
-        HotelierServerTCP tcpServer = new HotelierServerTCP();
-        tcpServer.startServer(); //avvia il server TCP
+        HotelierServer_NIO_TCP tcpServer = new HotelierServer_NIO_TCP("localhost:8081 Cioa TCP",8081);
+        tcpServer.run(); //avvia il server TCP
     }
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.Utente;
 import rmi.HOTELIERClientCallback;
-import rmi.HOTELIERService;
+import server.rmi.HOTELIERServerRMI;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -19,7 +19,7 @@ import java.util.Map;
  * Test mode 10/10/2024 ore 21:38 Implementato login logout e registrazione
  */
 
-public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERService {
+public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERServerRMI {
     /**
      * Lista degli utenti registrati
      */
@@ -70,7 +70,7 @@ public class HOTELIERServer extends UnicastRemoteObject implements HOTELIERServi
         //Crea un nuovo user e lo aggiunge alla lista degli utenti
         Utente newUser = new Utente(username, password);
         users.add(newUser);
-        saveUsersToFile(users,"resources/utenti.json");
+        saveUsersToFile(users,"/resources/utenti.json");
         clientCallback.notifyClient("Registrazione avvenuta con Successo per l'utente " + username);
         return "SUCCESS";
     }

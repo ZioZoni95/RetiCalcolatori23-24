@@ -9,22 +9,28 @@ import java.util.List;
 import java.net.Socket;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 
-public class HotelierServerTCP {
-    private static final int PORT = 8081;
+public class HotelierServer_NIO_TCP implements Runnable {
+    //aggiunta 13/10/2024
+    private final String serverAddress;
+    //----
+    private  final int PORT;
     private ExecutorService threadpool;
     private List<Utente> users;
 
-    public HotelierServerTCP(){
+    public HotelierServer_NIO_TCP(/*aggiunti*/String serverAddress,int PORT){
+        //aggiunta 13/10/2024
+        this.serverAddress = serverAddress;
+        this.PORT = PORT;
+        //----
         //inizializzo il threadpool
-        threadpool = Executors.newFixedThreadPool(10);
+        threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
         //carica utenti da json
+        //aggiunta 
     }
 
-    public void startServer() {
+    public void run() {
         try (ServerSocket serverSocket = new ServerSocket();) {
             InetSocketAddress serverAddress = new InetSocketAddress("localhost/HOTELIERService",8081);
             serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(), PORT));
