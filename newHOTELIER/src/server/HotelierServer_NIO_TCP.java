@@ -1,12 +1,19 @@
 package server;
 import model.Utente;
+import server.networkPackages.RegisterPacket;
+import server.networkPackages.RegisterResponsePacket;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 import java.util.List;
-import java.net.Socket;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
@@ -15,11 +22,16 @@ public class HotelierServer_NIO_TCP implements Runnable {
     //aggiunta 13/10/2024
     private final String serverAddress;
     //----
-    private  final int PORT;
+    private final int PORT;
     private ExecutorService threadpool;
-    private List<Utente> users;
+    // private List<Utente> users;
 
-    public HotelierServer_NIO_TCP(/*aggiunti*/String serverAddress,int PORT){
+    /**
+     * test
+     */
+    private ByteBuffer buffer = ByteBuffer.allocate(1024);
+
+    public HotelierServer_NIO_TCP(/*aggiunti*/String serverAddress, int PORT) {
         //aggiunta 13/10/2024
         this.serverAddress = serverAddress;
         this.PORT = PORT;
@@ -31,111 +43,109 @@ public class HotelierServer_NIO_TCP implements Runnable {
     }
 
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket();) {
-            InetSocketAddress serverAddress = new InetSocketAddress("localhost/HOTELIERService",8081);
-            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(), PORT));
-            // System.out.println("Server TCP avviato sulla porta " + PORT);
+        try {
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+            InetSocketAddress address = new InetSocketAddress(serverAddress,PORT);
+            serverSocketChannel.socket().bind(address);
+            serverSocketChannel.configureBlocking(false);
+
+            //configuro selector per NIO
+            Selector selector = Selector.open();
+            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+            System.out.println("Server TCP-NIO avviato su " + serverAddress + ":" + PORT);
+
+            //Ciclo principale del server pe accettare e gestire la connessioni
+
             while (true) {
-                System.out.println("Server TCP avviato sulla porta " + PORT);
-                Socket clientSocket = serverSocket.accept();
-                threadpool.submit(() -> handleClient(clientSocket));
+                selector.select(); //blocco fino a quando c'è un evento
+                Set<SelectionKey> selectionKeys = selector.selectedKeys();
+                Iterator<SelectionKey> keyIterator = selectionKeys.iterator();
+
+                while (keyIterator.hasNext()) {
+                    SelectionKey key = keyIterator.next();
+                    keyIterator.remove();
+
+                    if (key.isAcceptable()) {
+                        //accatta connessione
+                        SocketChannel socketChannel = serverSocketChannel.accept();
+                        socketChannel.configureBlocking(false);
+                        socketChannel.register(selector, SelectionKey.OP_READ);
+                        System.out.println("Connessione accettada da: " + socketChannel.getRemoteAddress());
+                    } else if (key.isReadable()) {
+                        // Gestisce la lettura dei dati
+                        handleClient(key);
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void handleClient(Socket clientSocket) {
-        try(DataInputStream inputStream = new DataInputStream(clientSocket.getInputStream());
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));) {
+    private void handleClient(SelectionKey key) {
+        threadpool.submit(() -> {
+            SocketChannel socketChannel = (SocketChannel) key.channel();
+            try {
+                buffer.clear();
 
-            String command = inputStream.readLine();
-            while (command != null) {
-                // legge il comando inviato dal client
-                System.out.println("Comando ricevuto: " + command);
-                if (command.startsWith("login")) {
-                    handleLogin(command, writer);
-                } else if (command.startsWith("Registrazione")) {
-                    handleRegister(command, writer);
-                } else {
-                    System.out.println("Comando non riconosciuto: " + command);
-                }
-                writer.write(command + "\r\n");
-                writer.flush();
-            }
-        }catch (IOException e) {
-         System.out.println("Client closed or error");
-            } finally {
-                try {
-                    clientSocket.close();  // Chiude la connessione
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        /**
-         *
-         *
-         */
-    private void handleRegister(String command, BufferedWriter out) {
-        String[] parts = command.split(" ");
-
-        if (parts.length == 3) {  // Deve avere username, password, email
-            String username = parts[1];
-            String password = parts[2];
-            // Verifica se l'username esiste già
-            for (Utente user : users) {
-                if (user.getUsername().equals(username)) {
-                    System.out.println("Errore: Nome utente già in uso.");
-                    System.out.println("Nome utente già in uso: " + username);
+                //legge i dati del client
+                int bytesRead = socketChannel.read(buffer); // legge i dati dal client
+                if (bytesRead == -1) {
+                    System.out.println("Client disconnesso: " + socketChannel.getRemoteAddress());
+                    socketChannel.close();
                     return;
                 }
-            }
-            // Aggiungi il nuovo utente alla lista
-            Utente newUser = new Utente(username, password);
-            users.add(newUser);
+                if(bytesRead > 0) {
+                    buffer.flip();
+                    byte[] data = new byte[buffer.remaining()];
+                    buffer.get(data);
+                    String request = new String(data).trim();
+                    System.out.println(" Richiesta ricevuta dal client: " + request);
 
-            // Salva gli utenti aggiornati nel file JSON
-            //JsonUtils.saveUsersToFile(users, "resources/users.json");
+                    //Elaborazione della richiesta(register)
+                    RegisterPacket registerPacket = RegisterPacket.fromJson(request);
+                    String responseMessage = register(registerPacket.getUsername(), registerPacket.getPassword());
 
-            System.out.println("Registrazione avvenuta con successo per l'utente " + username);
-            System.out.println("Registrazione completata per l'utente: " + username);
-        } else {
-            // Comando di registrazione errato
-            System.out.println("Formato del comando register non corretto.");
-            System.out.println("Formato del comando register non corretto: " + command);
-        }
-    }
-
-    private void handleLogin(String command, BufferedWriter out) {
-        String[] parts = command.split(" ");
-
-        if (parts.length == 3) {  // Deve avere username e password
-            String username = parts[1];
-            String password = parts[2];
-
-            // Cerca l'utente nella lista degli utenti
-            for (Utente user : users) {
-                if (user.getUsername().equals(username)) {  // Utente trovato
-                    if (user.checkPassword(password)) {  // Password corretta
-                        System.out.println("Login avvenuto con successo per l'utente " + username);
-                        System.out.println("Login avvenuto per l'utente: " + username);
-                        return;
-                    } else {  // Password errata
-                        System.out.println("Login fallito. Password errata.");
-                        System.out.println("Password errata per l'utente: " + username);
-                        return;
+                    //invia la risposta al client
+                    RegisterResponsePacket response = new RegisterResponsePacket(true, responseMessage);
+                    ByteBuffer responseBuffer = ByteBuffer.wrap(response.toJson().getBytes());
+                    while(responseBuffer.hasRemaining()){
+                        socketChannel.write(responseBuffer);
                     }
+                    System.out.println("Risposta inviata completamente al client.");
+                }
+            }catch (java.net.SocketException e) {
+                System.out.println("Errore: Connessione resettata dal client.");
+                try {
+                    socketChannel.close();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }catch (Exception e) {
+                System.out.println("Errore nella gestione del client");
+                e.printStackTrace();
+                try {
+                    socketChannel.close();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
                 }
             }
-            // Utente non trovato
-            System.out.println("Login fallito. Utente non trovato.");
-            System.out.println("Utente non trovato: " + username);
-        } else {
-            // Comando di login errato
-            System.out.println("Formato del comando login non corretto.");
-            System.out.println("Formato del comando login non corretto: " + command);
-        }
+        });
+    }
+
+
+
+    // Simulazione della registrazione utente (per test)
+    private synchronized String register(String username, String password) {
+        // Logica fittizia di registrazione
+        return "Registrazione avvenuta con successo per " + username;
+    }
+
+    /*
+    main test
+     */
+    public static void main(String[] args) {
+        HotelierServer_NIO_TCP server = new HotelierServer_NIO_TCP("localhost", 8080);
+        new Thread(server).start();
     }
 }
