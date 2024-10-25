@@ -1,151 +1,163 @@
 package server;
-import model.Utente;
-import server.networkPackages.RegisterPacket;
-import server.networkPackages.RegisterResponsePacket;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
-
-public class HotelierServer_NIO_TCP implements Runnable {
+/**
+ * HotelierServer_NIO_TCP si occupa della gestione delle richieste TCP utilizzando NIO con multiplexing mantenendo una
+ * connessione di tipo persistente
+ *
+ *
+ */
+public class HotelierServer_NIO_TCP{
     //aggiunta 13/10/2024
-    private final String serverAddress;
-    //----
-    private final int PORT;
-    private ExecutorService threadpool;
+    //private final String serverAddress;
+    private final int BUFFER_DIM = 1024;
+
+    private final int nioTCPport;
+   // private ExecutorService threadpool; //threadpool per la gestione dei pacchetti inviati/ricevuti
     // private List<Utente> users;
 
     /**
-     * test
+     * comando utilizzato dal client per comunicare la fine della comunicazione
      */
-    private ByteBuffer buffer = ByteBuffer.allocate(1024);
+    private final String EXIT_CMD = "exit";
 
-    public HotelierServer_NIO_TCP(/*aggiunti*/String serverAddress, int PORT) {
-        //aggiunta 13/10/2024
-        this.serverAddress = serverAddress;
-        this.PORT = PORT;
-        //----
+    /**
+     * messaggio di risposta
+     */
+    private final String ADD_ANSWER = "echoed by server";
+
+    /**
+     * Costruttore del ServerNIO
+     *
+     * //@param serverAddress indirizzo del server
+     * @param nioTCPport    porta del server NIO
+     */
+
+    public HotelierServer_NIO_TCP(int nioTCPport) {
+        //this.serverAddress = serverAddress;
+        this.nioTCPport = nioTCPport;
         //inizializzo il threadpool
-        threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
-        //carica utenti da json
-        //aggiunta 
+       // threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
+       // Thread thread = new Thread(this);
+       // thread.start();
     }
 
-    public void run() {
+    //@Override
+    public void start() {
+        ServerSocketChannel serverSocketChannel;
         try {
-            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
-            InetSocketAddress address = new InetSocketAddress(serverAddress,PORT);
-            serverSocketChannel.socket().bind(address);
+            serverSocketChannel = ServerSocketChannel.open();
+            ServerSocket serverSocket = serverSocketChannel.socket();
+            InetSocketAddress serverAddress = new InetSocketAddress(nioTCPport);
+            serverSocket.bind(serverAddress);
             serverSocketChannel.configureBlocking(false);
-
             //configuro selector per NIO
             Selector selector = Selector.open();
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-            System.out.println("Server TCP-NIO avviato su " + serverAddress + ":" + PORT);
 
-            //Ciclo principale del server pe accettare e gestire la connessioni
+            while (!Thread.interrupted()) {
+                selector.select();
+                //insieme delle chiavi corrispondenti a canali pronti
+                Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                //iteratore dell'insieme definito sopra
+                Iterator<SelectionKey> iter = selectedKeys.iterator();
 
-            while (true) {
-                selector.select(); //blocco fino a quando c'è un evento
-                Set<SelectionKey> selectionKeys = selector.selectedKeys();
-                Iterator<SelectionKey> keyIterator = selectionKeys.iterator();
-
-                while (keyIterator.hasNext()) {
-                    SelectionKey key = keyIterator.next();
-                    keyIterator.remove();
-
+                while (iter.hasNext()) {
+                    SelectionKey key = iter.next();
+                    iter.remove();
                     if (key.isAcceptable()) {
-                        //accatta connessione
-                        SocketChannel socketChannel = serverSocketChannel.accept();
-                        socketChannel.configureBlocking(false);
-                        socketChannel.register(selector, SelectionKey.OP_READ);
-                        System.out.println("Connessione accettada da: " + socketChannel.getRemoteAddress());
-                    } else if (key.isReadable()) {
-                        // Gestisce la lettura dei dati
-                        handleClient(key);
+                        //Accetta una nuova connessione creando un socketChannel per la comunicazione
+                        ServerSocketChannel server = (ServerSocketChannel) key.channel();
+                        SocketChannel client = server.accept();
+
+                        System.out.println("Connessione accettata da: " + client);
+                        client.configureBlocking(false);
+                        this.readChannelBuffer(selector,client);
+
+                    }
+                    else if(key.isReadable()){
+                        this.readClientmessage(selector,key);
+                    }
+                    else if(key.isWritable()){
+                        this.echoAnswer(selector,key);
                     }
                 }
             }
+        } catch (ClosedChannelException e) {
+            throw new RuntimeException(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
-    private void handleClient(SelectionKey key) {
-        threadpool.submit(() -> {
-            SocketChannel socketChannel = (SocketChannel) key.channel();
-            try {
-                buffer.clear();
 
-                //legge i dati del client
-                int bytesRead = socketChannel.read(buffer); // legge i dati dal client
-                if (bytesRead == -1) {
-                    System.out.println("Client disconnesso: " + socketChannel.getRemoteAddress());
-                    socketChannel.close();
-                    return;
-                }
-                if(bytesRead > 0) {
-                    buffer.flip();
-                    byte[] data = new byte[buffer.remaining()];
-                    buffer.get(data);
-                    String request = new String(data).trim();
-                    System.out.println(" Richiesta ricevuta dal client: " + request);
+    private void readChannelBuffer(Selector sel, SocketChannel c_channel) throws IOException{
+        //creazione del buffer
+        ByteBuffer  lenght = ByteBuffer.allocate(Integer.BYTES);
+        ByteBuffer message = ByteBuffer.allocate(BUFFER_DIM);
+        ByteBuffer[] bfs = {lenght,message};
+        // aggiunge il canale del client al selector con l'operazione OP_READ
+        // e aggiunge l'array di bytebuffer [length, message] come attachment
+        c_channel.register(sel, SelectionKey.OP_READ, bfs);
+    }
 
-                    //Elaborazione della richiesta(register)
-                    RegisterPacket registerPacket = RegisterPacket.fromJson(request);
-                    String responseMessage = register(registerPacket.getUsername(), registerPacket.getPassword());
+    private void readClientmessage(Selector sel, SelectionKey r_key) throws IOException{
+        /**
+         * accetta una nuova connessione creando un Socket Channel per la comunicazione con il client
+         * che la richiede
+         */
+        SocketChannel c_channel = (SocketChannel) r_key.channel();
+        //recupera l'array di bytebuffer (attachment)
+        ByteBuffer[] bfs = (ByteBuffer[]) r_key.attachment();
+        c_channel.read(bfs);
+        if(!bfs[0].hasRemaining()){
+            bfs[0].flip();
+            int lenght = bfs[0].getInt();
 
-                    //invia la risposta al client
-                    RegisterResponsePacket response = new RegisterResponsePacket(true, responseMessage);
-                    ByteBuffer responseBuffer = ByteBuffer.wrap(response.toJson().getBytes());
-                    while(responseBuffer.hasRemaining()){
-                        socketChannel.write(responseBuffer);
-                    }
-                    System.out.println("Risposta inviata completamente al client.");
+            if(bfs[1].position() == lenght){
+                bfs[1].flip();
+                String msg = new String(bfs[1].array()).trim();
+                System.out.printf("Server received %s\n", msg);
+                if(msg.equals(this.EXIT_CMD)){
+                    System.out.println("Server: client connection closed " + c_channel.getRemoteAddress());
+                    r_key.cancel();
+                    c_channel.close();
                 }
-            }catch (java.net.SocketException e) {
-                System.out.println("Errore: Connessione resettata dal client.");
-                try {
-                    socketChannel.close();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }catch (Exception e) {
-                System.out.println("Errore nella gestione del client");
-                e.printStackTrace();
-                try {
-                    socketChannel.close();
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                else{
+                    /**
+                     * aggiunge il canale del client al selector con l'operazione OP_WRITE
+                     * e aggiunge il msg ricevuto come attachment (aggiungendo la risposta)
+                     */
+                    c_channel.register(sel,SelectionKey.OP_WRITE, msg + " " + this.ADD_ANSWER);
                 }
             }
-        });
+        }
     }
 
-
-
-    // Simulazione della registrazione utente (per test)
-    private synchronized String register(String username, String password) {
-        // Logica fittizia di registrazione
-        return "Registrazione avvenuta con successo per " + username;
-    }
-
-    /*
-    main test
+    /**
+     * scrive il buffer sul canale del client
+     *
+     * @param key chiave di selezione
+     * @throws IOException se si verifica un errore di I/O
      */
-    public static void main(String[] args) {
-        HotelierServer_NIO_TCP server = new HotelierServer_NIO_TCP("localhost", 8080);
-        new Thread(server).start();
+    private void echoAnswer(Selector sel, SelectionKey key) throws IOException {
+        SocketChannel c_channel = (SocketChannel) key.channel();
+        String echoAnsw= (String) key.attachment();
+        ByteBuffer bbEchoAnsw = ByteBuffer.wrap(echoAnsw.getBytes());
+        c_channel.write(bbEchoAnsw);
+        System.out.println("Server: " + echoAnsw + " inviato al client " + c_channel.getRemoteAddress());
+        if (!bbEchoAnsw.hasRemaining()) {
+            bbEchoAnsw.clear();
+            this.readChannelBuffer(sel, c_channel);
+        }
     }
 }
