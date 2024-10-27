@@ -61,10 +61,26 @@ public class HotelierServer_NIO_TCP{
         //this.serverAddress = serverAddress;
         this.nioTCPport = nioTCPport;
         loadHotels();
+        printHotels();
+
         //inizializzo il threadpool
        // threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
        // Thread thread = new Thread(this);
        // thread.start();
+    }
+
+    /**
+     * Test code
+     */
+    private void printHotels() {
+        if (hotels != null && !hotels.isEmpty()) {
+            System.out.println("Lista degli Hotels:");
+            for (Hotel hotel : hotels) {
+                System.out.println(hotel);
+            }
+        } else {
+            System.out.println("Nessun hotel trovato.");
+        }
     }
 
     /*
@@ -74,6 +90,7 @@ public class HotelierServer_NIO_TCP{
         ObjectMapper mapper = new ObjectMapper();
         try {
             File file = Paths.get(jsonHotelPathFIle).toFile();
+            System.out.println("Attempting to read from: " + file.getAbsolutePath());
             if (file.exists()) {
                 hotels = mapper.readValue(file, new TypeReference<List<Hotel>>() {
                 });
@@ -114,7 +131,7 @@ public class HotelierServer_NIO_TCP{
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
             // Aggiungi la shutdown hook per salvare gli hotel alla chiusura del server
-            Runtime.getRuntime().addShutdownHook(new Thread(this::saveHotels));
+          //  Runtime.getRuntime().addShutdownHook(new Thread(this::saveHotels));
 
             while (!Thread.interrupted()) {
                 selector.select();
