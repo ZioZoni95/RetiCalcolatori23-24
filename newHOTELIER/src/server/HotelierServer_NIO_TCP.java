@@ -1,11 +1,18 @@
 package server;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import model.Hotel;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
+import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
@@ -17,7 +24,6 @@ import java.util.concurrent.ExecutorService;
  *
  */
 public class HotelierServer_NIO_TCP{
-    //aggiunta 13/10/2024
     //private final String serverAddress;
     private final int BUFFER_DIM = 1024;
 
@@ -34,6 +40,15 @@ public class HotelierServer_NIO_TCP{
      * messaggio di risposta
      */
     private final String ADD_ANSWER = "echoed by server";
+    /**
+     * Path del file JSON
+     */
+    private final String jsonHotelPathFIle = "resources/Hotels.json";
+
+    /**
+     * Lista degli Hotels caricati dal file JSON
+     */
+    private List<Hotel> hotels;
 
     /**
      * Costruttore del ServerNIO
@@ -45,11 +60,45 @@ public class HotelierServer_NIO_TCP{
     public HotelierServer_NIO_TCP(int nioTCPport) {
         //this.serverAddress = serverAddress;
         this.nioTCPport = nioTCPport;
+        loadHotels();
         //inizializzo il threadpool
        // threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
        // Thread thread = new Thread(this);
        // thread.start();
     }
+
+    /*
+     *Metodo per caricare gli hotels da un file JSON
+     */
+    private void loadHotels(){
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            File file = Paths.get(jsonHotelPathFIle).toFile();
+            if (file.exists()) {
+                hotels = mapper.readValue(file, new TypeReference<List<Hotel>>() {
+                });
+                System.out.println("Hotel Caricati dal file JSON");
+            } else {
+                System.out.println("Hotels JSON file not found, starting with an empty list.");
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Metodo per salvare gli hotel in un file JSON
+     */
+    private void saveHotels() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(Paths.get(jsonHotelPathFIle).toFile(), hotels);
+            System.out.println("Hotels saved to JSON file.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     //@Override
     public void start() {
@@ -63,6 +112,9 @@ public class HotelierServer_NIO_TCP{
             //configuro selector per NIO
             Selector selector = Selector.open();
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+            // Aggiungi la shutdown hook per salvare gli hotel alla chiusura del server
+            Runtime.getRuntime().addShutdownHook(new Thread(this::saveHotels));
 
             while (!Thread.interrupted()) {
                 selector.select();

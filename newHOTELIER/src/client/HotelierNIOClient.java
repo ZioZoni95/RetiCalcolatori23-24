@@ -1,4 +1,7 @@
 package client;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import model.Hotel;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -6,6 +9,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class HotelierNIOClient {
@@ -38,6 +44,8 @@ public class HotelierNIOClient {
         this.nioPort = port;
         this.exit = false;
     }
+
+
     public void start(){
         try(SocketChannel client = SocketChannel.open(new InetSocketAddress("localhost",nioPort));){
             BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
