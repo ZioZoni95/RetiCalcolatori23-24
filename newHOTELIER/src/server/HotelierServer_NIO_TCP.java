@@ -1,5 +1,7 @@
 package server;
 
+import Handlers.ReadDataChannelHandler;
+import Handlers.WriteDataChannelHandler;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.Hotel;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * HotelierServer_NIO_TCP si occupa della gestione delle richieste TCP utilizzando NIO con multiplexing mantenendo una
@@ -25,16 +28,15 @@ import java.util.concurrent.ExecutorService;
  */
 public class HotelierServer_NIO_TCP{
     //private final String serverAddress;
-    private final int BUFFER_DIM = 1024;
+    //private final int BUFFER_DIM = 1024;
 
-    private final int nioTCPport;
-   // private ExecutorService threadpool; //threadpool per la gestione dei pacchetti inviati/ricevuti
+    private final int nioTCPport; // porta su cui il server è in listening
     // private List<Utente> users;
 
     /**
      * comando utilizzato dal client per comunicare la fine della comunicazione
      */
-    private final String EXIT_CMD = "exit";
+    public final String EXIT_CMD = "exit";
 
     /**
      * messaggio di risposta
@@ -51,20 +53,21 @@ public class HotelierServer_NIO_TCP{
     private List<Hotel> hotels;
 
     /**
-     * Costruttore del ServerNIO
-     *
-     * //@param serverAddress indirizzo del server
-     * @param nioTCPport    porta del server NIO
+     * threadpool per la gestione dei pacchetti inviati/ricevuti
      */
+    private final ExecutorService threadpool;
+
+
+    /**
+     * Costruttore del ServerNIO
+     **/
 
     public HotelierServer_NIO_TCP(int nioTCPport) {
-        //this.serverAddress = serverAddress;
         this.nioTCPport = nioTCPport;
         loadHotels();
-        printHotels();
-
-        //inizializzo il threadpool
-       // threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
+        //printHotels();
+       //inizializzo il threadpool
+       this.threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
        // Thread thread = new Thread(this);
        // thread.start();
     }
@@ -117,24 +120,26 @@ public class HotelierServer_NIO_TCP{
     }
 
 
-    //@Override
+    //metodo per avviare il server
     public void start() {
         ServerSocketChannel serverSocketChannel;
         try {
+            //configura il canale del server per ascoltare le connessioni sulla porta specificata
             serverSocketChannel = ServerSocketChannel.open();
             ServerSocket serverSocket = serverSocketChannel.socket();
             InetSocketAddress serverAddress = new InetSocketAddress(nioTCPport);
             serverSocket.bind(serverAddress);
-            serverSocketChannel.configureBlocking(false);
+            serverSocketChannel.configureBlocking(false); //non-blocking
             //configuro selector per NIO
-            Selector selector = Selector.open();
-            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+            Selector selector = Selector.open(); //selettore per il multiplexing dei canali
+            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT); /*registra il canale del server per
+                                                                              accettare connessioni*/
 
             // Aggiungi la shutdown hook per salvare gli hotel alla chiusura del server
           //  Runtime.getRuntime().addShutdownHook(new Thread(this::saveHotels));
 
             while (!Thread.interrupted()) {
-                selector.select();
+                selector.select(); //blocca fino a quando almeno un canale è pronto
                 //insieme delle chiavi corrispondenti a canali pronti
                 Set<SelectionKey> selectedKeys = selector.selectedKeys();
                 //iteratore dell'insieme definito sopra
@@ -142,22 +147,23 @@ public class HotelierServer_NIO_TCP{
 
                 while (iter.hasNext()) {
                     SelectionKey key = iter.next();
-                    iter.remove();
+                    iter.remove(); //rimuove la chiave per evitare di elaborarla nuovamente
                     if (key.isAcceptable()) {
-                        //Accetta una nuova connessione creando un socketChannel per la comunicazione
-                        ServerSocketChannel server = (ServerSocketChannel) key.channel();
-                        SocketChannel client = server.accept();
+                        accettaConnessione(selector,key); //gestisce l'accettazione di una connessione
+                        /*//ServerSocketChannel server = (ServerSocketChannel) key.channel();
+                        //SocketChannel client = server.accept();
 
                         System.out.println("Connessione accettata da: " + client);
                         client.configureBlocking(false);
                         this.readChannelBuffer(selector,client);
 
+                         */
                     }
                     else if(key.isReadable()){
-                        this.readClientmessage(selector,key);
+                        threadpool.execute(new ReadDataChannelHandler(key,this)); //delega all'handler di lettura
                     }
                     else if(key.isWritable()){
-                        this.echoAnswer(selector,key);
+                        threadpool.execute(new WriteDataChannelHandler(key)); // delega all'handler la scrittura;
                     }
                 }
             }
@@ -168,22 +174,55 @@ public class HotelierServer_NIO_TCP{
         }
     }
 
+    //metodo per accettare le connessioni
+    private void accettaConnessione(Selector selector, SelectionKey key) throws IOException{
+        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+        SocketChannel client_channel = serverSocketChannel.accept();
+        if(client_channel != null){
+            client_channel.configureBlocking(false); //nio non-blocking
+            System.out.println("Connessione accetta da " + client_channel);
+            readChannelBuffer(selector, client_channel); // Prepara il canale per la lettura
 
-    private void readChannelBuffer(Selector sel, SocketChannel c_channel) throws IOException{
-        //creazione del buffer
-        ByteBuffer  lenght = ByteBuffer.allocate(Integer.BYTES);
-        ByteBuffer message = ByteBuffer.allocate(BUFFER_DIM);
-        ByteBuffer[] bfs = {lenght,message};
-        // aggiunge il canale del client al selector con l'operazione OP_READ
-        // e aggiunge l'array di bytebuffer [length, message] come attachment
-        c_channel.register(sel, SelectionKey.OP_READ, bfs);
+        }
     }
 
+
+    private void readChannelBuffer(Selector selector, SocketChannel clientChannel) throws IOException{
+        //creazione del buffer
+        ByteBuffer  lenght = ByteBuffer.allocate(Integer.BYTES);
+      //  ByteBuffer message = ByteBuffer.allocate(BUFFER_DIM);
+     //   ByteBuffer[] bfs = {lenght,message};
+        // aggiunge il canale del client al selector con l'operazione OP_READ
+        // e aggiunge l'array di bytebuffer [length, message] come attachment
+        clientChannel.register(selector, SelectionKey.OP_READ , lenght);
+    }
+
+    // Metodo per cercare un hotel per nome e città
+    public synchronized Hotel searchHotel(String nomeHotel, String citta) {
+        for (Hotel hotel : hotels) {
+            if (hotel.getName().equalsIgnoreCase(nomeHotel) && hotel.getCity().equalsIgnoreCase(citta)) {
+                return hotel;
+            }
+        }
+        return null;
+    }
+
+    // Metodo per cercare tutti gli hotel di una città ordinati per ranking
+    public synchronized List<Hotel> searchAllHotels(String citta) {
+        return hotels.stream()
+                .filter(hotel -> hotel.getCity().equalsIgnoreCase(citta))
+                .sorted((h1, h2) -> Double.compare(h2.getRatings(), h1.getRate()))
+                .collect(Collectors.toList());
+    }
+}
+
+    /*
     private void readClientmessage(Selector sel, SelectionKey r_key) throws IOException{
         /**
          * accetta una nuova connessione creando un Socket Channel per la comunicazione con il client
          * che la richiede
          */
+    /*
         SocketChannel c_channel = (SocketChannel) r_key.channel();
         //recupera l'array di bytebuffer (attachment)
         ByteBuffer[] bfs = (ByteBuffer[]) r_key.attachment();
@@ -206,18 +245,20 @@ public class HotelierServer_NIO_TCP{
                      * aggiunge il canale del client al selector con l'operazione OP_WRITE
                      * e aggiunge il msg ricevuto come attachment (aggiungendo la risposta)
                      */
+    /*
                     c_channel.register(sel,SelectionKey.OP_WRITE, msg + " " + this.ADD_ANSWER);
                 }
             }
         }
     }
-
+*/
     /**
      * scrive il buffer sul canale del client
      *
      * @param key chiave di selezione
      * @throws IOException se si verifica un errore di I/O
      */
+    /*
     private void echoAnswer(Selector sel, SelectionKey key) throws IOException {
         SocketChannel c_channel = (SocketChannel) key.channel();
         String echoAnsw= (String) key.attachment();
@@ -229,4 +270,5 @@ public class HotelierServer_NIO_TCP{
             this.readChannelBuffer(sel, c_channel);
         }
     }
-}
+     */
+

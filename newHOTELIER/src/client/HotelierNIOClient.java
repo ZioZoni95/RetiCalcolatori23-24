@@ -18,7 +18,7 @@ public class HotelierNIOClient {
     /**
      * dimensione del buffer utilizzato per la lettura
      */
-    private final int BUFFER_DIM = 1024;
+   // private final int BUFFER_DIM = 1024;
 
     /**
      * comando utilizzato dal client per comunicare la fine della comunicazione
@@ -51,7 +51,7 @@ public class HotelierNIOClient {
             BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
 
             System.out.println("Client: connesso");
-            System.out.println("Digita exit per uscire, i messaggi inviati al server: ");
+            System.out.println("Benvenuto su Hotelier! messaggi inviati al server: ");
 
             while(!this.exit){
                 String msg = consoleReader.readLine().trim();
@@ -61,18 +61,18 @@ public class HotelierNIOClient {
                 lenght.putInt(msg.length());
                 lenght.flip();
                 client.write(lenght);
-                lenght.clear();
+                //lenght.clear();
 
                 //la seconda parte del messaggio contiene il messaggio da inviare
-                ByteBuffer readBuffer = ByteBuffer.wrap(msg.getBytes());
-
+                ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
                 client.write(readBuffer);
-                readBuffer.clear();
+                //readBuffer.clear();
 
                 if(msg.equals(this.EXIT_CMD)){
                     this.exit = true;
                     continue;
                 }
+                //Legge la lunghezza del messaggio di risposta
                 ByteBuffer reply = ByteBuffer.allocate(BUFFER_DIM);
                 client.read(reply);
                 reply.flip();

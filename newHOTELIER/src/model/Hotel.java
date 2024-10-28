@@ -71,7 +71,7 @@ public class Hotel {
         this.rate = rate;
     }
 
-    public Ratings getRatings() {
+    public double getRatings() {
         return ratings;
     }
 
