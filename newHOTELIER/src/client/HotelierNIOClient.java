@@ -73,7 +73,7 @@ public class HotelierNIOClient {
                     continue;
                 }
                 //Legge la lunghezza del messaggio di risposta
-                ByteBuffer reply = ByteBuffer.allocate(BUFFER_DIM);
+               // ByteBuffer reply = ByteBuffer.allocate(BUFFER_DIM);
                 client.read(reply);
                 reply.flip();
                 System.out.printf("Client: il server ha inviato %s\n", new String(reply.array()).trim());
