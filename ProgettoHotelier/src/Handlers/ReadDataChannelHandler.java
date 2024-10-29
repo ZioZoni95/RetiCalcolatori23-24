@@ -19,8 +19,8 @@ public class ReadDataChannelHandler implements Runnable{
         this.key = key;
         this.server = server;
     }
-
-   /* @Override
+/*
+    @Override
     public void run(){
         try{
             SocketChannel client_channel = (SocketChannel) key.channel();
@@ -84,7 +84,8 @@ public class ReadDataChannelHandler implements Runnable{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }*/
+    }
+    */
    @Override
    public void run() {
        try {
@@ -139,6 +140,9 @@ public class ReadDataChannelHandler implements Runnable{
            String jsonResponse = mapper.writeValueAsString(response);
            ByteBuffer responseBuffer = ByteBuffer.allocate(Integer.BYTES + jsonResponse.length());
            responseBuffer.putInt(jsonResponse.length());
+           System.out.println("fino a qui ci sono");
+
+           //qui esplode
            responseBuffer.put(jsonResponse.getBytes());
            responseBuffer.flip();
 
