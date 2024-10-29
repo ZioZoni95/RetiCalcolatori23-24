@@ -1,6 +1,6 @@
-package client;
+package server;
 
-public class HotelierClientMain {
+public class HotelierServerMain {
     final static int DEFAULT_PORT = 9999;
 
     public static void main(String[] args){
@@ -13,8 +13,9 @@ public class HotelierClientMain {
                 System.exit(-1);
             }
         }
-        // crea e avvia il client
-        HotelierNIOClient client = new HotelierNIOClient(myPort);
-        client.start();
+        // crea e avvia il server
+        HotelierServer_NIO_TCP server = new HotelierServer_NIO_TCP(myPort);
+        Thread serverThread = new Thread(server);
+        serverThread.start();
     }
 }

@@ -1,6 +1,5 @@
 package Handlers;
 
-import server.HotelierServer_NIO_TCP;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,6 +13,26 @@ public class WriteDataChannelHandler implements Runnable{
         this.key = key;
     }
 
+    @Override
+    public void run() {
+        try {
+            SocketChannel clientChannel = (SocketChannel) key.channel();
+            ByteBuffer responseBuffer = (ByteBuffer) key.attachment();
+
+            // Scrive la risposta al client
+            clientChannel.write(responseBuffer);
+
+            // Se tutti i dati sono stati inviati, resetta per la lettura successiva
+            if (!responseBuffer.hasRemaining()) {
+                responseBuffer.clear();
+                ByteBuffer lengthBuffer = ByteBuffer.allocate(Integer.BYTES);
+                clientChannel.register(key.selector(), SelectionKey.OP_READ, lengthBuffer);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+/*
     @Override
     public void run(){
         try{
@@ -29,5 +48,5 @@ public class WriteDataChannelHandler implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }

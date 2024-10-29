@@ -2,6 +2,7 @@ package Handlers;
 
 import model.Hotel;
 import server.HotelierServer_NIO_TCP;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -19,7 +20,7 @@ public class ReadDataChannelHandler implements Runnable{
         this.server = server;
     }
 
-    @Override
+   /* @Override
     public void run(){
         try{
             SocketChannel client_channel = (SocketChannel) key.channel();
@@ -83,5 +84,69 @@ public class ReadDataChannelHandler implements Runnable{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
+   @Override
+   public void run() {
+       try {
+           SocketChannel clientChannel = (SocketChannel) key.channel();
+           ByteBuffer lengthBuffer = (ByteBuffer) key.attachment();
+
+           // Leggi la lunghezza del comando
+           if (lengthBuffer.remaining() > 0) {
+               clientChannel.read(lengthBuffer);
+           }
+           if (lengthBuffer.hasRemaining()) return;  // Attende finché la lunghezza non è completamente letta
+
+           lengthBuffer.flip();
+           int messageLength = lengthBuffer.getInt();
+
+           // Prepara il buffer per il comando vero e proprio
+           ByteBuffer commandBuffer = ByteBuffer.allocate(messageLength);
+           clientChannel.read(commandBuffer);
+
+           if (commandBuffer.hasRemaining()) return;  // Attende finché il comando non è completamente letto
+
+           commandBuffer.flip();
+           String jsonCommand = new String(commandBuffer.array(), 0, commandBuffer.limit()).trim();
+           ObjectMapper mapper = new ObjectMapper();
+
+           // Deserializza il comando JSON
+           String commandLine = mapper.readValue(jsonCommand, String.class);
+           System.out.println("Server: comando ricevuto: " + commandLine);
+
+           // Elabora il comando
+           String[] parts = commandLine.split(" ");
+           String response;
+
+           if (parts[0].equalsIgnoreCase("searchAllHotels") && parts.length == 2) {
+               // Gestione comando searchAllHotels
+               String city = parts[1];
+               List<Hotel> hotels = server.searchAllHotels(city);
+               response = hotels.isEmpty() ? "Nessun hotel trovato in " + city : mapper.writeValueAsString(hotels);
+
+           } else if (parts[0].equalsIgnoreCase("searchHotel") && parts.length == 3) {
+               // Gestione comando searchHotel
+               String hotelName = parts[1];
+               String city = parts[2];
+               Hotel hotel = server.searchHotel(hotelName, city);
+               response = (hotel != null) ? mapper.writeValueAsString(hotel) : "Hotel '" + hotelName + "' non trovato in " + city;
+
+           } else {
+               response = "Comando non riconosciuto o parametri mancanti.";
+           }
+
+           // Serializza e prepara la risposta da inviare al client
+           String jsonResponse = mapper.writeValueAsString(response);
+           ByteBuffer responseBuffer = ByteBuffer.allocate(Integer.BYTES + jsonResponse.length());
+           responseBuffer.putInt(jsonResponse.length());
+           responseBuffer.put(jsonResponse.getBytes());
+           responseBuffer.flip();
+
+           // Registra la chiave per la scrittura con la risposta
+           clientChannel.register(key.selector(), SelectionKey.OP_WRITE, responseBuffer);
+           System.out.println("Server: risposta inviata per il comando '" + commandLine + "'");
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+   }
 }

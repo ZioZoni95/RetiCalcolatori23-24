@@ -63,7 +63,7 @@ public class Hotel {
         this.services = services;
     }
 
-    public int getRate() {
+    public double getRate() {
         return rate;
     }
 
@@ -71,7 +71,7 @@ public class Hotel {
         this.rate = rate;
     }
 
-    public double getRatings() {
+    public Ratings getRatings() {
         return ratings;
     }
 
