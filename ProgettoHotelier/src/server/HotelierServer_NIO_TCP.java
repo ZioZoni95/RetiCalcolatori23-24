@@ -121,7 +121,7 @@ public class HotelierServer_NIO_TCP implements Runnable{
             //Legge il contenutoswl buffer come Stringa JSON
             String jsonData = new String(dataBytes, StandardCharsets.UTF_8);
 
-            //deserializza in una lista di otel
+            //deserializza in una lista di hotel
             hotels = mapper.readValue(jsonData, new TypeReference<List<Hotel>>() {});
             System.out.println("Caricamento file Hotels.json: Completato");
         }catch (IOException e){
@@ -227,9 +227,9 @@ public class HotelierServer_NIO_TCP implements Runnable{
 
                     if (key.isAcceptable()) {
                         accettaConnessione(key); // Gestisce una nuova connessione
-                    } else if (key.isReadable()) {
+                    } if (key.isReadable()) {
                         threadpool.execute(new ReadDataChannelHandler(key, this));
-                    } else if (key.isWritable()) {
+                    }  if (key.isWritable()) {
                         threadpool.execute(new WriteDataChannelHandler(key));
                     }
                 }

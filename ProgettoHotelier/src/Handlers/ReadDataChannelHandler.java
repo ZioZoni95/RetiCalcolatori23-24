@@ -20,6 +20,8 @@ public class ReadDataChannelHandler implements Runnable{
         this.server = server;
     }
 /*
+
+
     @Override
     public void run(){
         try{
@@ -138,17 +140,24 @@ public class ReadDataChannelHandler implements Runnable{
 
            // Serializza e prepara la risposta da inviare al client
            String jsonResponse = mapper.writeValueAsString(response);
-           ByteBuffer responseBuffer = ByteBuffer.allocate(Integer.BYTES + jsonResponse.length());
-           responseBuffer.putInt(jsonResponse.length());
+           byte[] jsonResponseBytes = jsonResponse.getBytes();
+           ByteBuffer responseBuffer = ByteBuffer.allocate(Integer.BYTES + jsonResponseBytes.length);
+           responseBuffer.putInt(jsonResponseBytes.length);
+           // ByteBuffer responseBuffer = ByteBuffer.allocate(Integer.BYTES + jsonResponse.length());
+           //responseBuffer.putInt(jsonResponse.length());
            System.out.println("fino a qui ci sono");
 
            //qui esplode
-           responseBuffer.put(jsonResponse.getBytes());
+           responseBuffer.put(jsonResponseBytes);
            responseBuffer.flip();
 
            // Registra la chiave per la scrittura con la risposta
+          /* clientChannel.register(key.selector(), SelectionKey.OP_WRITE, responseBuffer);*/
+           System.out.println("Registering OP_WRITE for clientChannel");
            clientChannel.register(key.selector(), SelectionKey.OP_WRITE, responseBuffer);
+           key.selector().wakeup();
            System.out.println("Server: risposta inviata per il comando '" + commandLine + "'");
+           responseBuffer.clear();
        } catch (IOException e) {
            e.printStackTrace();
        }

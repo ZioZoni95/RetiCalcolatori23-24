@@ -170,6 +170,7 @@ public class HotelierNIOClient implements Runnable {
                 // Deserializza e stampa la risposta
                 String response = mapper.readValue(replyJson, String.class);
                 System.out.printf("Client: risposta dal server - %s\n", response);
+                responseBuffer.clear();
             }
         } catch (IOException e) {
             e.printStackTrace();

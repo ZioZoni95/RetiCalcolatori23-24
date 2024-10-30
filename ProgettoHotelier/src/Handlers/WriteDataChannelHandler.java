@@ -26,7 +26,11 @@ public class WriteDataChannelHandler implements Runnable{
             if (!responseBuffer.hasRemaining()) {
                 responseBuffer.clear();
                 ByteBuffer lengthBuffer = ByteBuffer.allocate(Integer.BYTES);
+                key.attach(lengthBuffer); //attach del nuovo buffer per leggere la lunghezza
+
+                //registra l'interesse del client in OP_READ
                 clientChannel.register(key.selector(), SelectionKey.OP_READ, lengthBuffer);
+                System.out.println("Response sent. Ready to read next request.");
             }
         } catch (IOException e) {
             e.printStackTrace();
