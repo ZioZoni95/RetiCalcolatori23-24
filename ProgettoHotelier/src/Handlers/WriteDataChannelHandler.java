@@ -6,11 +6,15 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import server.HotelierServer_NIO_TCP;
+
 public class WriteDataChannelHandler implements Runnable{
     private final SelectionKey key; //Chiave di selezione associata al canale pronto per la scrittura
+    private final HotelierServer_NIO_TCP server;
 
-    public WriteDataChannelHandler(SelectionKey key){
+    public WriteDataChannelHandler(SelectionKey key,HotelierServer_NIO_TCP server){
         this.key = key;
+        this.server=server;
     }
 
     @Override
@@ -26,16 +30,19 @@ public class WriteDataChannelHandler implements Runnable{
             if (!responseBuffer.hasRemaining()) {
                 responseBuffer.clear();
                 ByteBuffer lengthBuffer = ByteBuffer.allocate(Integer.BYTES);
-                key.attach(lengthBuffer); //attach del nuovo buffer per leggere la lunghezza
-
-                //registra l'interesse del client in OP_READ
-                clientChannel.register(key.selector(), SelectionKey.OP_READ, lengthBuffer);
-                System.out.println("Response sent. Ready to read next request.");
-            }else{
-                clientChannel.register(key.selector(), SelectionKey.OP_WRITE, responseBuffer);
+                server.updateKey(key, SelectionKey.OP_READ, lengthBuffer);
+                System.out.println("Response sent. Ready for the next request.");
+            } else {
+                server.updateKey(key, SelectionKey.OP_WRITE, responseBuffer);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            //pezzo modificato
+            System.err.println("Write error: " + e.getMessage());
+            try {
+                key.channel().close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }

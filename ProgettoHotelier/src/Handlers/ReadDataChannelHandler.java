@@ -159,11 +159,17 @@ public class ReadDataChannelHandler implements Runnable{
             responseBuffer.flip();
 
             // Registra la chiave per scrivere la risposta al client
-            clientChannel.register(key.selector(), SelectionKey.OP_WRITE, responseBuffer);
-            key.selector().wakeup();
+            server.updateKey(key, SelectionKey.OP_WRITE, responseBuffer);
+            //clientChannel.register(key.selector(), SelectionKey.OP_WRITE, responseBuffer);
+            //key.selector().wakeup();
             System.out.println("Server: risposta preparata per il comando '" + commandLine + "'");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Read error: " + e.getMessage());
+            try {
+                key.channel().close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }

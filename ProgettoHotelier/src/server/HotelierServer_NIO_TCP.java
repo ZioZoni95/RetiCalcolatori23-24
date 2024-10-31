@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,8 @@ public class HotelierServer_NIO_TCP implements Runnable{
     private final String jsonHotelPathFIle = "resources/Hotels.json";
     private List<Hotel> hotels;
     private final ExecutorService threadpool;
+    private final Set<SelectionKey> keysInProgress = ConcurrentHashMap.newKeySet();
+
 
     /**
      * Costruttore del ServerNIO
@@ -48,15 +51,15 @@ public class HotelierServer_NIO_TCP implements Runnable{
         this.nioTCPport = nioTCPport;
         loadHotels();
         //printHotels();
-       //inizializzo il threadpool
-       this.threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
-       // Thread thread = new Thread(this);
-       // thread.start();
+        //inizializzo il threadpool
+        this.threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
+        // Thread thread = new Thread(this);
+        // thread.start();
     }
-/*
-    /**
-     * Test code
-     *//*
+    /*
+        /**
+         * Test code
+         *//*
     private void printHotels() {
         if (hotels != null && !hotels.isEmpty()) {
             System.out.println("Lista degli Hotels:");
@@ -141,8 +144,8 @@ public class HotelierServer_NIO_TCP implements Runnable{
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT); /*registra il canale del server per
                                                                               accettare connessioni*/
 
-            // Aggiungi la shutdown hook per salvare gli hotel alla chiusura del server
-          //  Runtime.getRuntime().addShutdownHook(new Thread(this::saveHotels));
+    // Aggiungi la shutdown hook per salvare gli hotel alla chiusura del server
+    //  Runtime.getRuntime().addShutdownHook(new Thread(this::saveHotels));
 
     /*        while (!Thread.interrupted()) {
                 selector.select(); //blocca fino a quando almeno un canale è pronto
@@ -197,21 +200,58 @@ public class HotelierServer_NIO_TCP implements Runnable{
                 while (iter.hasNext()) {
                     SelectionKey key = iter.next();
                     iter.remove();
+                    processKey(key);
+                }
+               /* while (iter.hasNext()) {
+                    SelectionKey key = iter.next();
+                    iter.remove();
 
                     if (key.isAcceptable()) {
                         accettaConnessione(key); // Gestisce una nuova connessione
                     } if (key.isReadable()) {
                         threadpool.execute(new ReadDataChannelHandler(key, this));
                     }  if (key.isWritable()) {
-                        threadpool.execute(new WriteDataChannelHandler(key));
+                        threadpool.execute(new WriteDataChannelHandler(key,this));
                     }
-                }
+                }*/
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             shutdown();
         }
+    }
+
+    private synchronized void processKey(SelectionKey key) {
+        if (!key.isValid() || keysInProgress.contains(key)) return;
+
+        keysInProgress.add(key);
+        if (key.isAcceptable()) {
+            accettaConnessione(key);
+            keysInProgress.remove(key);
+        } else if (key.isReadable()) {
+            threadpool.execute(() -> {
+                try {
+                    new ReadDataChannelHandler(key, this).run();
+                } finally {
+                    keysInProgress.remove(key);
+                }
+            });
+        } else if (key.isWritable()) {
+            threadpool.execute(() -> {
+                try {
+                    new WriteDataChannelHandler(key, this).run();
+                } finally {
+                    keysInProgress.remove(key);
+                }
+            });
+        }
+    }
+
+    public void updateKey(SelectionKey key, int ops, ByteBuffer attachment) {
+        key.interestOps(ops);
+        key.attach(attachment);
+        selector.wakeup();
     }
 
     public void shutdown() {
@@ -226,14 +266,17 @@ public class HotelierServer_NIO_TCP implements Runnable{
     }
 
 
-    private void accettaConnessione(SelectionKey key) throws IOException {
-        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
-        SocketChannel clientChannel = serverSocketChannel.accept();
-        clientChannel.configureBlocking(false);
-        System.out.println("Connessione accettata da " + clientChannel);
-        clientChannel.register(selector, SelectionKey.OP_READ, ByteBuffer.allocate(Integer.BYTES));
+    private void accettaConnessione(SelectionKey key) {
+        try {
+            ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+            SocketChannel clientChannel = serverSocketChannel.accept();
+            clientChannel.configureBlocking(false);
+            System.out.println("Connection accepted from " + clientChannel);
+            clientChannel.register(selector, SelectionKey.OP_READ, ByteBuffer.allocate(Integer.BYTES));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
 
     // Metodo per cercare un hotel per nome e città
     public synchronized Hotel searchHotel(String nomeHotel, String citta) {
@@ -248,7 +291,7 @@ public class HotelierServer_NIO_TCP implements Runnable{
     public synchronized List<Hotel> searchAllHotels(String citta) {
         return hotels.stream()
                 .filter(hotel -> hotel.getCity().equalsIgnoreCase(citta))
-             //   .sorted((h1, h2) -> Ratings.compare(h2.getRatings(), h1.getRate()))
+                //   .sorted((h1, h2) -> Ratings.compare(h2.getRatings(), h1.getRate()))
                 .collect(Collectors.toList());
     }
 }
