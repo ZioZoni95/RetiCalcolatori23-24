@@ -7,7 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import model.Hotel;
 import model.Ratings;
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,37 +35,15 @@ public class HotelierServer_NIO_TCP implements Runnable{
     private final int nioTCPport; // porta su cui il server è in listening
     private Selector selector;
     private  volatile boolean running = true;
-
-
-    /**
-     * comando utilizzato dal client per comunicare la fine della comunicazione
-     */
     public final String EXIT_CMD = "exit";
-
-    /**
-     * messaggio di risposta
-     */
     private final String ADD_ANSWER = "echoed by server";
-    /**
-     * Path del file JSON
-     */
     private final String jsonHotelPathFIle = "resources/Hotels.json";
-
-    /**
-     * Lista degli Hotels caricati dal file JSON
-     */
     private List<Hotel> hotels;
-
-    /**
-     * threadpool per la gestione dei pacchetti inviati/ricevuti
-     */
     private final ExecutorService threadpool;
-
 
     /**
      * Costruttore del ServerNIO
      **/
-
     public HotelierServer_NIO_TCP(int nioTCPport) {
         this.nioTCPport = nioTCPport;
         loadHotels();
@@ -74,10 +53,10 @@ public class HotelierServer_NIO_TCP implements Runnable{
        // Thread thread = new Thread(this);
        // thread.start();
     }
-
+/*
     /**
      * Test code
-     */
+     *//*
     private void printHotels() {
         if (hotels != null && !hotels.isEmpty()) {
             System.out.println("Lista degli Hotels:");
@@ -88,27 +67,20 @@ public class HotelierServer_NIO_TCP implements Runnable{
             System.out.println("Nessun hotel trovato.");
         }
     }
-
+*/
     /*
      *Metodo per caricare gli hotels da un file JSON
      */
     private void loadHotels(){
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
-       /* try {
-            System.out.println("Attempting to read from: " + file.getAbsolutePath());
-            if (file.exists()) {
-                hotels = mapper.readValue(file, new TypeReference<List<Hotel>>() {
-                });
-                System.out.println("Hotel Caricati dal file JSON");
-            } else {
-                System.out.println("Hotels JSON file not found, starting with an empty list.");
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }
 
-        */
+        /*
+         * rende visibile all'ObjectMapper gli attributi privati della classe di cui l'oggetto da serializzare
+         * ne l'istanza
+         */
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
         try(FileChannel fileChannel = FileChannel.open(Paths.get(jsonHotelPathFIle),StandardOpenOption.READ)){
             ByteBuffer buffer = ByteBuffer.allocateDirect((int) fileChannel.size());
             fileChannel.read(buffer);
@@ -122,6 +94,7 @@ public class HotelierServer_NIO_TCP implements Runnable{
             String jsonData = new String(dataBytes, StandardCharsets.UTF_8);
 
             //deserializza in una lista di hotel
+
             hotels = mapper.readValue(jsonData, new TypeReference<List<Hotel>>() {});
             System.out.println("Caricamento file Hotels.json: Completato");
         }catch (IOException e){
@@ -251,18 +224,7 @@ public class HotelierServer_NIO_TCP implements Runnable{
             e.printStackTrace();
         }
     }
-/*
-    //metodo per accettare le connessioni
-    private void accettaConnessione(Selector selector, SelectionKey key) throws IOException{
-        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
-        SocketChannel client_channel = serverSocketChannel.accept();
-        if(client_channel != null){
-            client_channel.configureBlocking(false); //nio non-blocking
-            System.out.println("Connessione accetta da " + client_channel);
-            readChannelBuffer(selector, client_channel); // Prepara il canale per la lettura
 
-        }
-    }*/
 
     private void accettaConnessione(SelectionKey key) throws IOException {
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
@@ -272,16 +234,6 @@ public class HotelierServer_NIO_TCP implements Runnable{
         clientChannel.register(selector, SelectionKey.OP_READ, ByteBuffer.allocate(Integer.BYTES));
     }
 
-
-    private void readChannelBuffer(Selector selector, SocketChannel clientChannel) throws IOException{
-        //creazione del buffer
-        ByteBuffer  lenght = ByteBuffer.allocate(Integer.BYTES);
-      //  ByteBuffer message = ByteBuffer.allocate(BUFFER_DIM);
-     //   ByteBuffer[] bfs = {lenght,message};
-        // aggiunge il canale del client al selector con l'operazione OP_READ
-        // e aggiunge l'array di bytebuffer [length, message] come attachment
-        clientChannel.register(selector, SelectionKey.OP_READ , lenght);
-    }
 
     // Metodo per cercare un hotel per nome e città
     public synchronized Hotel searchHotel(String nomeHotel, String citta) {
@@ -296,58 +248,8 @@ public class HotelierServer_NIO_TCP implements Runnable{
     public synchronized List<Hotel> searchAllHotels(String citta) {
         return hotels.stream()
                 .filter(hotel -> hotel.getCity().equalsIgnoreCase(citta))
-               //.sorted((h1, h2) -> Ratings.compare(h2.getRatings(), h1.getRate()))
+             //   .sorted((h1, h2) -> Ratings.compare(h2.getRatings(), h1.getRate()))
                 .collect(Collectors.toList());
     }
 }
-
-    /*
-    private void readClientmessage(Selector sel, SelectionKey r_key) throws IOException{
-        /**
-         * accetta una nuova connessione creando un Socket Channel per la comunicazione con il client
-         * che la richiede
-         */
-    /*
-        SocketChannel c_channel = (SocketChannel) r_key.channel();
-        //recupera l'array di bytebuffer (attachment)
-        ByteBuffer[] bfs = (ByteBuffer[]) r_key.attachment();
-        c_channel.read(bfs);
-        if(!bfs[0].hasRemaining()){
-            bfs[0].flip();
-            int lenght = bfs[0].getInt();
-
-            if(bfs[1].position() == lenght){
-                bfs[1].flip();
-                String msg = new String(bfs[1].array()).trim();
-                System.out.printf("Server received %s\n", msg);
-                if(msg.equals(this.EXIT_CMD)){
-                    System.out.println("Server: client connection closed " + c_channel.getRemoteAddress());
-                    r_key.cancel();
-                    c_channel.close();
-                }
-                else{
-                    /**
-                     * aggiunge il canale del client al selector con l'operazione OP_WRITE
-                     * e aggiunge il msg ricevuto come attachment (aggiungendo la risposta)
-                     */
-    /*
-                    c_channel.register(sel,SelectionKey.OP_WRITE, msg + " " + this.ADD_ANSWER);
-                }
-            }
-        }
-    }
-*/
-    /*
-    private void echoAnswer(Selector sel, SelectionKey key) throws IOException {
-        SocketChannel c_channel = (SocketChannel) key.channel();
-        String echoAnsw= (String) key.attachment();
-        ByteBuffer bbEchoAnsw = ByteBuffer.wrap(echoAnsw.getBytes());
-        c_channel.write(bbEchoAnsw);
-        System.out.println("Server: " + echoAnsw + " inviato al client " + c_channel.getRemoteAddress());
-        if (!bbEchoAnsw.hasRemaining()) {
-            bbEchoAnsw.clear();
-            this.readChannelBuffer(sel, c_channel);
-        }
-    }
-     */
 

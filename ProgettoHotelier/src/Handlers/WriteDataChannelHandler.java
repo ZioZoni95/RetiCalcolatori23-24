@@ -31,26 +31,11 @@ public class WriteDataChannelHandler implements Runnable{
                 //registra l'interesse del client in OP_READ
                 clientChannel.register(key.selector(), SelectionKey.OP_READ, lengthBuffer);
                 System.out.println("Response sent. Ready to read next request.");
+            }else{
+                clientChannel.register(key.selector(), SelectionKey.OP_WRITE, responseBuffer);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-/*
-    @Override
-    public void run(){
-        try{
-            SocketChannel client_channel = (SocketChannel) key.channel();
-            String response = (String) key.attachment(); // Recupera la risposta da inviare
-            ByteBuffer buff_Response = ByteBuffer.wrap(response.getBytes()); // converte la risposya in un buffer
-            client_channel.write(buff_Response); //Scrive la risposta sul canale
-            System.out.println("Server: " + response + " inviato al client " + client_channel.getRemoteAddress());
-
-            if(!buff_Response.hasRemaining()){
-                buff_Response.clear();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
 }

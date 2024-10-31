@@ -150,20 +150,26 @@ public class HotelierNIOClient implements Runnable {
                 lengthBuffer.putInt(jsonCommand.length());
                 lengthBuffer.flip();
                 client.write(lengthBuffer);
+                lengthBuffer.clear();
 
                 // Invia il comando JSON
                 ByteBuffer commandBuffer = ByteBuffer.wrap(jsonCommand.getBytes());
-                client.write(commandBuffer);
+                while(commandBuffer.hasRemaining()){
+                    client.write(commandBuffer);
+                }
 
                 // Ricezione della lunghezza della risposta
                 ByteBuffer responseLengthBuffer = ByteBuffer.allocate(Integer.BYTES);
                 client.read(responseLengthBuffer);
                 responseLengthBuffer.flip();
                 int responseLength = responseLengthBuffer.getInt();
+                responseLengthBuffer.clear();
 
                 // Ricezione del contenuto della risposta
                 ByteBuffer responseBuffer = ByteBuffer.allocate(responseLength);
-                client.read(responseBuffer);
+                while(responseBuffer.hasRemaining()){
+                 client.read(responseBuffer);
+                }
                 responseBuffer.flip();
                 String replyJson = new String(responseBuffer.array(), 0, responseBuffer.limit()).trim();
 
