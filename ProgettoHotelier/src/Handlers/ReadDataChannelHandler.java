@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class ReadDataChannelHandler implements Runnable{
     private final SelectionKey key;
@@ -131,17 +132,26 @@ public class ReadDataChannelHandler implements Runnable{
             String commandLine = mapper.readValue(jsonCommand, String.class);
             System.out.println("Server: comando ricevuto: " + commandLine);
 
-            String[] parts = commandLine.split(" ");
+            StringTokenizer token = new StringTokenizer(commandLine);
+            String command = token.hasMoreTokens() ? token.nextToken() : "";
             String response;
 
-            if (parts[0].equalsIgnoreCase("searchAllHotels") && parts.length == 2) {
-                String city = parts[1];
+            if (command.equalsIgnoreCase("searchAllHotels") && token.hasMoreTokens()) {
+                String city = token.nextToken();
                 List<Hotel> hotels = server.searchAllHotels(city);
                 response = hotels.isEmpty() ? "Nessun hotel trovato in " + city : mapper.writeValueAsString(hotels);
 
-            } else if (parts[0].equalsIgnoreCase("searchHotel") && parts.length == 3) {
-                String hotelName = parts[1];
-                String city = parts[2];
+            } else if (command.equalsIgnoreCase("searchHotel") && token.countTokens() >= 2) {
+                StringBuilder hotelNameBuilder = new StringBuilder(); // costruisce il nome dell'hotel dai token
+                while(token.countTokens() > 1){
+                    hotelNameBuilder.append(token.nextToken());
+                    if(token.countTokens() > 1){
+                        hotelNameBuilder.append(" ");
+                    }
+                }
+                String hotelName = hotelNameBuilder.toString().trim();
+                String city = token.nextToken();
+
                 Hotel hotel = server.searchHotel(hotelName, city);
                 response = (hotel != null) ? mapper.writeValueAsString(hotel) : "Hotel '" + hotelName + "' non trovato in " + city;
 
