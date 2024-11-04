@@ -1,72 +1,58 @@
 package model;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 
-/**
- * Queta classe modella gli utenti che si registrano e interagiscono con il sistema inservendo recensioni e
- * ottenendo distintivi in base al #recensioni fatte
- */
-public class Utente implements Serializable{
+public class Utente {
     @JsonProperty("username")
-    private final String username;
-
+    private String username;
     @JsonProperty("password")
-    private final String password;
-  //  private String eMail;
+    private String password;
+    @JsonProperty("badgeLevel")
+    private String badgeLevel;
+    @JsonProperty("reviewCount")
+    private int reviewCount; // Numero di recensioni fatte dall'utente
 
-    @JsonProperty("numRecensioni")
-    private int numRecensioni;
+    // Costruttore di default richiesto da Jackson
+    public Utente() {}
 
-    @JsonProperty("rank")
-    private String rank; /*rank dell'utente basato sul num di Rencesioni*/
-
-    //Costruttore
-    public Utente (String username, String password){
+    public Utente(String username, String password) {
         this.username = username;
-       // this.eMail = eMail;
         this.password = password;
-        numRecensioni = 0;
-        this.rank = "Recensore";  //rank iniziale
+        this.reviewCount = 0; // Imposta il numero di recensioni iniziale a zero
+        this.badgeLevel = "Recensore"; // Livello iniziale di badge
     }
 
-    //addRecensione per aggiungere recensione e aggiornare il rank
-    public void addReview(){
-        this.numRecensioni++;
-        updateRank(); //Aggiorna il rank
+    // Getter e Setter
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public String getBadgeLevel() { return badgeLevel; }
+    public void setBadgeLevel(String badgeLevel) { this.badgeLevel = badgeLevel; }
+
+    public int getReviewCount() { return reviewCount; }
+    public void setReviewCount(int reviewCount) { this.reviewCount = reviewCount; }
+
+    // Incrementa il numero di recensioni e aggiorna il distintivo
+    public void incrementReviewCount() {
+        this.reviewCount++;
+        updateBadgeLevel();
     }
 
-    public void updateRank(){
-        if (numRecensioni >= 50) {
-            this.rank = "Contributore Super";
+    // Aggiorna il distintivo in base al numero di recensioni
+    private void updateBadgeLevel() {
+        if (reviewCount >= 50) {
+            badgeLevel = "Contributore Super";
+        } else if (reviewCount >= 30) {
+            badgeLevel = "Contributore Esperto";
+        } else if (reviewCount >= 20) {
+            badgeLevel = "Contributore";
+        } else if (reviewCount >= 10) {
+            badgeLevel = "Recensore Esperto";
+        } else {
+            badgeLevel = "Recensore";
         }
-        else if(numRecensioni >= 30){
-            this.rank = "Contributore Esperto";
-        }else if(numRecensioni >= 15){
-            this.rank = "Contributore";
-        }else if (numRecensioni >= 5){
-            this.rank = "Recensore Esperto";
-        }else{
-            this.rank ="Recensore";
-        }
-    }
-
-    //Getter per l'username
-    public String getUsername(){
-        return username;
-    }
-
-    //Getter per il numRecensioni
-    public int getNumRecensioni() {
-        return numRecensioni;
-    }
-
-    public String getRank(){
-        return rank;
-    }
-
-
-    //Verifica della password (da testare)
-    public boolean checkPassword(String password){
-        return this.password.equals(password);
     }
 }
