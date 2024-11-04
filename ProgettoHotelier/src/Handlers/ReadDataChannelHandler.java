@@ -23,72 +23,7 @@ public class ReadDataChannelHandler implements Runnable{
         this.key = key;
         this.server = server;
     }
-    /*
-   @Override
-   public void run() {
-       try {
-           SocketChannel clientChannel = (SocketChannel) key.channel();
-           ByteBuffer buffer = (ByteBuffer) key.attachment();
 
-           // Se `buffer` è vuoto, prepariamolo per leggere la lunghezza del messaggio
-           if (buffer.position() < Integer.BYTES) {
-               clientChannel.read(buffer);
-               if (buffer.position() < Integer.BYTES) return; // Aspetta finché la lunghezza non è completamente letta
-               buffer.flip();
-               int messageLength = buffer.getInt(); //recupero la lunghezza
-               buffer.clear();
-               buffer.limit(messageLength); //imposto il limite
-               return;
-           }
-           //legge il contenuto
-           clientChannel.read(buffer);
-           if (buffer.hasRemaining()) return;  // Attende finché il comando non è completamente letto
-
-           buffer.flip();
-           String jsonCommand = new String(buffer.array(), 0, buffer.limit()).trim();
-           ObjectMapper mapper = new ObjectMapper();
-
-           // Deserializza il comando JSON
-           String commandLine = mapper.readValue(jsonCommand, String.class);
-           System.out.println("Server: comando ricevuto: " + commandLine);
-
-           // Elabora il comando
-           String[] parts = commandLine.split(" ");
-           String response;
-
-           if (parts[0].equalsIgnoreCase("searchAllHotels") && parts.length == 2) {
-               // Gestione comando searchAllHotels
-               String city = parts[1];
-               List<Hotel> hotels = server.searchAllHotels(city);
-               response = hotels.isEmpty() ? "Nessun hotel trovato in " + city : mapper.writeValueAsString(hotels);
-
-           } else if (parts[0].equalsIgnoreCase("searchHotel") && parts.length == 3) {
-               // Gestione comando searchHotel
-               String hotelName = parts[1];
-               String city = parts[2];
-               Hotel hotel = server.searchHotel(hotelName, city);
-               response = (hotel != null) ? mapper.writeValueAsString(hotel) : "Hotel '" + hotelName + "' non trovato in " + city;
-
-           } else {
-               response = "Comando non riconosciuto o parametri mancanti.";
-           }
-
-           // Serializza e prepara la risposta da inviare al client
-           String jsonResponse = mapper.writeValueAsString(response);
-           byte[] jsonResponseBytes = jsonResponse.getBytes();
-           buffer.putInt(jsonResponseBytes.length);
-           buffer.put(jsonResponseBytes);
-           buffer.flip();
-
-           // Registra la chiave per la scrittura con la risposta
-           System.out.println("Registering OP_WRITE for clientChannel");
-           clientChannel.register(key.selector(), SelectionKey.OP_WRITE, buffer);
-           key.selector().wakeup();
-           System.out.println("Server: risposta inviata per il comando '" + commandLine + "'");
-       } catch (IOException e) {
-           e.printStackTrace();
-       }
-   }*/
     @Override
     public void run() {
         try {
@@ -170,8 +105,6 @@ public class ReadDataChannelHandler implements Runnable{
 
             // Registra la chiave per scrivere la risposta al client
             server.updateKey(key, SelectionKey.OP_WRITE, responseBuffer);
-            //clientChannel.register(key.selector(), SelectionKey.OP_WRITE, responseBuffer);
-            //key.selector().wakeup();
             System.out.println("Server: risposta preparata per il comando '" + commandLine + "'");
         } catch (IOException e) {
             System.err.println("Read error: " + e.getMessage());

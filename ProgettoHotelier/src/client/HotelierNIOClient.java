@@ -40,86 +40,6 @@ public class HotelierNIOClient implements Runnable {
         this.exit = false;
     }
 
-/*
-    public void start(){
-        try(SocketChannel client = SocketChannel.open(new InetSocketAddress("localhost",nioPort));){
-            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-            ObjectMapper mapper = new ObjectMapper(); //oggetto per gestire la serializzazione
-
-            System.out.println("Client: connesso");
-            System.out.println("Benvenuto su Hotelier! Scegli un'opzione : searchHotels searchallHotels ");
-
-
-            while(!this.exit){
-                //legge l'input dalla cli
-                String msg = consoleReader.readLine().trim();
-
-                /**
-                 * Serializzazione: Converte il messaggio in JSON
-                 */
-     //           String jsonMsg = mapper.writeValueAsString(msg);
-
-                /**
-                 * Invio Lunghezza messaggio: Prima di inviare il messaggio
-                 * si calcola e si invia la sua lunghezza. In questo modo il server
-                 * sa quanti byte aspettarsi
-                 */
-
-                //creo il messaggio da inviare al server
-/*                ByteBuffer lenghtBuffer = ByteBuffer.allocate(Integer.BYTES);
-                lenghtBuffer.putInt(jsonMsg.length());
-                lenghtBuffer.flip(); //passa il buffer in modalità lettura
-                client.write(lenghtBuffer);
-               // lenght.clear(); //Rimuove i dati dal buffer per riutilizzarlo
-                /*
-
-
-
-                //la seconda parte del messaggio contiene il messaggio da inviare
-                ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
-                client.write(readBuffer);
-                //readBuffer.clear();
-
-                 */
-                //invio del messaggio json
-      /*          ByteBuffer messageBuffer = ByteBuffer.wrap(jsonMsg.getBytes());
-                client.write(messageBuffer);
-
-                if(msg.equals(this.EXIT_CMD)){
-                    this.exit = true;
-                    continue;
-                }
-                //Legge la lunghezza del messaggio di risposta
-                ByteBuffer reply = ByteBuffer.allocate(Integer.BYTES);
-                client.read(reply);
-                reply.flip();
-                int responseLenght = reply.getInt();
-
-                //reply.clear();
-
-                /*Allocazione di un buffer dinamico per la risposta in base alla dim ricevuta*/
-  /*             ByteBuffer replyBuffer = ByteBuffer.allocate(responseLenght);
-               client.read(replyBuffer);
-               replyBuffer.flip();
-               String replyJson = new String(replyBuffer.array(), 0 , replyBuffer.limit()).trim();
-
-
-               /*//**Lettura della risposta**: Si assicura di leggere tutti i byte del messaggio
-               while (replyBuffer.hasRemaining()){
-                   client.read(replyBuffer);
-               }
-              //  System.out.printf("Client: il server ha inviato %s\n", new String(reply.array()).trim());
-              */
-  /*              String r_msg = mapper.readValue(replyJson,String.class); //conversione json a string
-                System.out.printf("Client: il server ha inviato %s\n",r_msg);
-                replyBuffer.clear();
-            }
-            System.out.println("Client: chiusura");
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
-    }*/
 
     @Override
     public void run() {
@@ -128,7 +48,10 @@ public class HotelierNIOClient implements Runnable {
             ObjectMapper mapper = new ObjectMapper();
 
             System.out.println("Client: connesso al server su porta " + nioPort);
-            System.out.println("Benvenuto su Hotelier! Comandi disponibili: searchHotel <NomeHotel> <Città>, searchAllHotels <Città>, exit");
+            System.out.println("Benvenuto su Hotelier! Comandi disponibili: " +
+                                 "register <username> <password>, " +
+                                "login <username> <password>, logout <username>," +
+                                "searchHotel <NomeHotel> <Città>, searchAllHotels <Città>, exit");
 
             while (!this.exit) {
                 System.out.print("Inserisci comando: ");

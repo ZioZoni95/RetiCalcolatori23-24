@@ -1,0 +1,14 @@
+{
+  "ciao" : {
+    "username" : "ciao",
+    "password" : "ciao",
+    "badgeLevel" : "Recensore",
+    "reviewCount" : 0
+  },
+  "ciccio" : {
+    "username" : "ciccio",
+    "password" : "ciccio",
+    "badgeLevel" : "Recensore",
+    "reviewCount" : 0
+  }
+}
