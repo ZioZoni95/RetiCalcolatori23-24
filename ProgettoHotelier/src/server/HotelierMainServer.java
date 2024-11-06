@@ -1,7 +1,6 @@
 package server;
-import Handlers.HandlerUtente;
-import RMI.HotelierServiceImpl;
-import server.HotelierServer_NIO_TCP;
+import Handlers.LoginHandlerUtente;
+import RMI.HotelierServerServiceInterfaceImpl;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,14 +14,14 @@ public class HotelierMainServer {
             new Thread(hotelServer).start();
 
             // Configura e avvia il server RMI per la gestione utenti
-            HandlerUtente userHandler = new HandlerUtente();
-            HotelierServiceImpl userServer = new HotelierServiceImpl(userHandler);
+            LoginHandlerUtente userHandler = new LoginHandlerUtente();
+            HotelierServerServiceInterfaceImpl userServer = new HotelierServerServiceInterfaceImpl(userHandler);
 
             Registry registry = LocateRegistry.createRegistry(1099);
             registry.rebind("HotelierServer", userServer);
 
             System.out.println("Server RMI per utenti registrato su porta 1099.");
-           // System.out.println("Server TCP/NIO per hotel avviato su porta " + tcpPort);
+            System.out.println("Server TCP/NIO per hotel avviato su porta " + tcpPort);
 
         } catch (Exception e) {
             e.printStackTrace();

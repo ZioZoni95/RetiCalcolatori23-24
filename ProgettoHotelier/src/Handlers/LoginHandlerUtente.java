@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import model.Utente;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,15 +13,47 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class HandlerUtente {
-    private static final String USER_DATA_FILE = "users.json"; // Percorso del file JSON
+public class LoginHandlerUtente {
+    private static LoginHandlerUtente istanza = null;
+
+    private LoginHandlerUtente() {
+        utentiLoggati = new ArrayList<>();
+    }
+
+    public static LoginHandlerUtente getInstance() {
+        if (istanza == null) {
+            istanza = new LoginHandlerUtente();
+        }
+        return istanza;
+    }
+
+    private List<Utente> utentiLoggati;
+
+    public synchronized void addLoggedUser(Utente user) {
+        utentiLoggati.add(user);
+    }
+
+    public synchronized boolean userIsLogged(Utente user) {
+
+        for (Utente utentiLoggati : utentiLoggati) {
+            if (StringUtils.equalsIgnoreCase(utentiLoggati.getUsername(), user.getUsername())) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+    /*    private static final String USER_DATA_FILE = "users.json"; // Percorso del file JSON
     private Map<String, Utente> users = new ConcurrentHashMap<>();
     private ObjectMapper objectMapper;
 
-    public HandlerUtente() {
+    public LoginHandlerUtente() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         loadUsers(); // Carica gli utenti all'avvio
@@ -28,7 +61,7 @@ public class HandlerUtente {
 
     /**
      * Carica gli utenti dal file JSON.
-     */
+     *//*
     private void loadUsers() {
         File file = new File(USER_DATA_FILE);
         if (!file.exists()) {
@@ -58,7 +91,7 @@ public class HandlerUtente {
 
     /**
      * Salva gli utenti nel file JSON.
-     */
+     *//*
 
     public synchronized void saveUsers() {
         try (FileOutputStream fos = new FileOutputStream(USER_DATA_FILE);
@@ -84,7 +117,7 @@ public class HandlerUtente {
 
     /**
      * Registra un nuovo utente, restituendo un messaggio di feedback.
-     */
+     *//*
     public synchronized String registerUser(String username, String password) {
         if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
             return "Errore: Username o password vuoti";
@@ -99,7 +132,7 @@ public class HandlerUtente {
 
     /**
      * Verifica il login di un utente, restituendo un messaggio di feedback.
-     */
+     *//*
     public synchronized String validateUserLogin(String username, String password) {
         Utente user = users.get(username);
         if (user == null || !user.getPassword().equals(password)) {
@@ -110,9 +143,9 @@ public class HandlerUtente {
 
     /**
      * Restituisce il badge dell'utente.
-     */
+     *//*
     public synchronized String getUserBadge(String username) {
         Utente user = users.get(username);
         return user != null ? user.getBadgeLevel() : null;
-    }
-}
+    }*/
+

@@ -1,6 +1,6 @@
 package RMI;
 
-import Handlers.HandlerUtente;
+import Handlers.LoginHandlerUtente;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -12,12 +12,12 @@ import java.util.Set;
  * Utilizza HandlerUtente per la persistenza degli utenti e tiene traccia
  * degli utenti loggati.
  */
-public class HotelierServiceImpl extends UnicastRemoteObject implements HotelierService {
-    private HandlerUtente userHandler; // Riferimento al gestore degli utenti (persistenza)
+public class HotelierServerServiceInterfaceImpl extends UnicastRemoteObject implements HotelierServerServiceInterface {
+    private LoginHandlerUtente userHandler; // Riferimento al gestore degli utenti (persistenza)
     private Set<String> loggedUsers;   // Set per tenere traccia degli utenti loggati
 
     // Costruttore che accetta un'istanza di HandlerUtente
-    public HotelierServiceImpl(HandlerUtente userHandler) throws RemoteException {
+    public HotelierServerServiceInterfaceImpl(LoginHandlerUtente userHandler) throws RemoteException {
         super();
         this.userHandler = userHandler;
         this.loggedUsers = new HashSet<>();

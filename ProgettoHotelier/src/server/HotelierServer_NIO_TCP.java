@@ -1,5 +1,6 @@
 package server;
 
+import Handlers.HandlerMessages;
 import Handlers.ReadDataChannelHandler;
 import Handlers.WriteDataChannelHandler;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.charset.StandardCharsets;
@@ -32,22 +34,24 @@ import java.util.stream.Collectors;
  */
 public class HotelierServer_NIO_TCP implements Runnable{
     private final int nioTCPport; // porta su cui il server è in listening
-    private Selector selector;
-    private  volatile boolean running = true;
-    public final String EXIT_CMD = "exit";
-    private final String ADD_ANSWER = "echoed by server";
+    private final String serverAddress;
+  //  private Selector selector;
+  //  private  volatile boolean running = true;
+  //  public final String EXIT_CMD = "exit";
+  //  private final String ADD_ANSWER = "echoed by server";
     private final String jsonHotelPathFIle = "resources/Hotels.json";
     private List<Hotel> hotels;
-    private final ExecutorService threadpool;
-    private final Set<SelectionKey> keysInProgress = ConcurrentHashMap.newKeySet();
+    private ExecutorService threadpool;
+   // private final Set<SelectionKey> keysInProgress = ConcurrentHashMap.newKeySet();
 
 
     /**
      * Costruttore del ServerNIO
      **/
-    public HotelierServer_NIO_TCP(int nioTCPport) {
+    public HotelierServer_NIO_TCP(String serverAddress,int nioTCPport) {
         this.nioTCPport = nioTCPport;
-        loadHotels();
+        this.serverAddress = serverAddress;
+        //loadHotels();
         //printHotels();
         //inizializzo il threadpool
         this.threadpool = Executors.newCachedThreadPool(); //al post di new fixedthreadpool
@@ -114,7 +118,7 @@ public class HotelierServer_NIO_TCP implements Runnable{
     /**
      *override del moetodo run per avviare il server
      */
-
+/*mio run
     @Override
     public void run() {
         try (ServerSocketChannel serverSocketChannel = ServerSocketChannel.open()) {
@@ -175,6 +179,47 @@ public class HotelierServer_NIO_TCP implements Runnable{
             System.out.println("Server chiuso in modo sicuro.");
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }*/
+
+    @Override
+    public void run(){
+        try{
+            InetSocketAddress serverSocketAddress = new InetSocketAddress(serverAddress,nioTCPport);
+            //apro una una socket channel e la setto non-blocking
+            ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+            serverSocketChannel.configureBlocking(false); //non-blocking
+            //apro il selector
+            Selector serverSelector = Selector.open();
+            //registro la socket channel sul selettore
+            serverSocketChannel.register(serverSelector,SelectionKey.OP_ACCEPT);
+
+            while(!Thread.interrupted()){
+                serverSelector.select();
+                Set<SelectionKey> keys = serverSelector.selectedKeys();
+                Iterator<SelectionKey> iter = keys.iterator();
+
+                while(iter.hasNext()){
+                    SelectionKey keySelected = iter.next();
+
+                    //se la chiave è accettabilile (ovvero è predisposta all'accept arriva una nuova connessione
+                    if(keySelected.isAcceptable()){
+                        SocketChannel client = serverSocketChannel.accept();
+                        client.configureBlocking(false);
+
+                        //registro il client syul selector per read/write
+                        SelectionKey keyOfClient = client.register(serverSelector,SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+
+                        //allego l'attachment
+                        keyOfClient.attach(new ReadDataChannelHandler(client));
+                    }
+
+                    if(keySelected.isValid() && keySelected.isReadable()){
+                        ReadDataChannelHandler clientHandler = (ReadDataChannelHandler) keySelected.attachment();
+                        HandlerMessages getMessage = clientHandler.
+                    }
+                }
+            }
         }
     }
 

@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class HotelierNIOClient implements Runnable {
@@ -30,6 +32,7 @@ public class HotelierNIOClient implements Runnable {
      * false altrimenti
      */
     private boolean exit;
+    private final BlockingQueue<String> commandQueue = new LinkedBlockingQueue<>();
 
     /**
      * Costruttore del Client
@@ -40,6 +43,15 @@ public class HotelierNIOClient implements Runnable {
         this.exit = false;
     }
 
+    public void sendCommand(String command) {
+        try {
+            commandQueue.put(command);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void run() {
@@ -47,15 +59,25 @@ public class HotelierNIOClient implements Runnable {
             BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
             ObjectMapper mapper = new ObjectMapper();
 
-            System.out.println("Client: connesso al server su porta " + nioPort);
+       /*     System.out.println("Client: connesso al server su porta " + nioPort);
             System.out.println("Benvenuto su Hotelier! Comandi disponibili: " +
                                  "register <username> <password>, " +
                                 "login <username> <password>, logout <username>," +
                                 "searchHotel <NomeHotel> <Città>, searchAllHotels <Città>, exit");
+*/
+            System.out.println("Client: connesso al server su porta " + nioPort);
 
             while (!this.exit) {
-                System.out.print("Inserisci comando: ");
+              /*  System.out.print("Inserisci comando: ");
                 String commandLine = consoleReader.readLine().trim();
+*/
+                String commandLine = commandQueue.poll();
+
+                if (commandLine == null){
+                    // If no command is available, continue reading from console
+                    System.out.print("Inserisci comando: ");
+                    commandLine = consoleReader.readLine().trim();
+                }
 
                 // Se il comando è "exit", chiudi il client
                 if (commandLine.equalsIgnoreCase(EXIT_CMD)) {

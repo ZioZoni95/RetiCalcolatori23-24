@@ -11,15 +11,23 @@ import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class ReadDataChannelHandler implements Runnable{
+/**
+ * Questa classe handler si occupa della gestione della comunicazione TCP/NIO tra il server il client, in particolare
+ * si occupa della lettura dei pacchetti inviati dal client e gestione dei pacchetti ricevuti
+ */
+
+public class ReadDataChannelHandler{
+    private final SocketChannel client;
+    private final
+}
+
+/*public class ReadDataChannelHandler implements Runnable {
     private final SelectionKey key;
     private final HotelierServer_NIO_TCP server;
     private final ObjectMapper mapper = new ObjectMapper();
-
     private static final int MAX_MESSAGE_LENGTH = 4096; // Limite massimo di lunghezza del messaggio
 
-
-    public ReadDataChannelHandler(SelectionKey key, HotelierServer_NIO_TCP server){
+    public ReadDataChannelHandler(SelectionKey key, HotelierServer_NIO_TCP server) {
         this.key = key;
         this.server = server;
     }
@@ -71,27 +79,40 @@ public class ReadDataChannelHandler implements Runnable{
             String command = token.hasMoreTokens() ? token.nextToken() : "";
             String response;
 
-            if (command.equalsIgnoreCase("searchAllHotels") && token.hasMoreTokens()) {
-                String city = token.nextToken();
-                List<Hotel> hotels = server.searchAllHotels(city);
-                response = hotels.isEmpty() ? "Nessun hotel trovato in " + city : mapper.writeValueAsString(hotels);
-
-            } else if (command.equalsIgnoreCase("searchHotel") && token.countTokens() >= 2) {
-                StringBuilder hotelNameBuilder = new StringBuilder(); // costruisce il nome dell'hotel dai token
-                while(token.countTokens() > 1){
-                    hotelNameBuilder.append(token.nextToken());
-                    if(token.countTokens() > 1){
-                        hotelNameBuilder.append(" ");
+            // Use switch-case to handle commands
+            switch (command.toLowerCase()) {
+                case "searchallhotels":
+                    if (token.hasMoreTokens()) {
+                        String city = token.nextToken();
+                        List<Hotel> hotels = server.searchAllHotels(city);
+                        response = hotels.isEmpty() ? "Nessun hotel trovato in " + city : mapper.writeValueAsString(hotels);
+                    } else {
+                        response = "Comando non riconosciuto o parametri mancanti.";
                     }
-                }
-                String hotelName = hotelNameBuilder.toString().trim();
-                String city = token.nextToken();
+                    break;
 
-                Hotel hotel = server.searchHotel(hotelName, city);
-                response = (hotel != null) ? mapper.writeValueAsString(hotel) : "Hotel '" + hotelName + "' non trovato in " + city;
+                case "searchhotel":
+                    if (token.countTokens() >= 2) {
+                        StringBuilder hotelNameBuilder = new StringBuilder(); // costruisce il nome dell'hotel dai token
+                        while (token.countTokens() > 1) {
+                            hotelNameBuilder.append(token.nextToken());
+                            if (token.countTokens() > 1) {
+                                hotelNameBuilder.append(" ");
+                            }
+                        }
+                        String hotelName = hotelNameBuilder.toString().trim();
+                        String city = token.nextToken();
 
-            } else {
-                response = "Comando non riconosciuto o parametri mancanti.";
+                        Hotel hotel = server.searchHotel(hotelName, city);
+                        response = (hotel != null) ? mapper.writeValueAsString(hotel) : "Hotel '" + hotelName + "' non trovato in " + city;
+                    } else {
+                        response = "Comando non riconosciuto o parametri mancanti.";
+                    }
+                    break;
+
+                default:
+                    response = "Comando non riconosciuto o parametri mancanti.";
+                    break;
             }
 
             // Serializza la risposta e crea un nuovo buffer per inviarla
@@ -115,4 +136,4 @@ public class ReadDataChannelHandler implements Runnable{
             }
         }
     }
-}
+}*/
