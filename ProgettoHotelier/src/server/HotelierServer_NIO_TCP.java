@@ -220,6 +220,10 @@ public class HotelierServer_NIO_TCP implements Runnable{
                     }
                 }
             }
+        } catch (ClosedChannelException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

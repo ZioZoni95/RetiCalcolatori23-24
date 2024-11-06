@@ -1,6 +1,6 @@
 package client;
 
-import RMI.HotelierClientRmiImp;
+import RMI.RMIClient.HotelierClientRmiImp;
 
 import java.util.Scanner;
 

@@ -1,11 +1,11 @@
-package server;
+package server.config;
 
 import utils.JsonUtils;
 
 import java.io.File;
 import java.io.IOException;
 
-import static server.ServerJsonSettings.SERVER_CONFIG_JSON;
+import static server.config.ServerJsonSettings.SERVER_CONFIG_JSON;
 
 public class ConfigManager {
     private static HotelierServerConfig serverConfig;

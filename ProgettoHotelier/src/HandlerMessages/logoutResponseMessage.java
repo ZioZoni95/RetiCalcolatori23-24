@@ -6,4 +6,8 @@ public class logoutResponseMessage extends Request_ResponseMessage {
     public logoutResponseMessage(String logoutResponse){
         this.logoutResponse = logoutResponse;
     }
+
+    public String getLogoutResponse(){
+        return logoutResponse;
+    }
 }

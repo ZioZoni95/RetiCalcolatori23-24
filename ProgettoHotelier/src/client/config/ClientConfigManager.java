@@ -1,11 +1,11 @@
-package client;
+package client.config;
 
 import utils.JsonUtils;
 
 import java.io.File;
 import java.io.IOException;
 
-import static client.ClientConfigSetting.CLIENT_CONFIG_PATH_JSON;
+import static client.config.ClientConfigSetting.CLIENT_CONFIG_PATH_JSON;
 
 public class ClientConfigManager {
     private static HotelierClientConfig clientConfig;

@@ -1,10 +1,12 @@
-package RMI;
+package RMI.RMIServer;
+
+import RMI.RMIClient.HotelierClientInterface;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
-public interface HotelierServerServiceInterface extends Remote {
+public interface HotelierServerInterface extends Remote {
     // Metodo per la registrazione
     public String registerUser(String username, String password) throws RemoteException;
 

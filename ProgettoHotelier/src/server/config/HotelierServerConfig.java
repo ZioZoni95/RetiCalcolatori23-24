@@ -1,13 +1,14 @@
-package client;
+package server.config;
 
-public class HotelierClientConfig {
+public class HotelierServerConfig {
 
     /**
-     * La classe HotelierClientConfig contiene i config del client, ovvero:
+     * La classe HotelierServerConfig contiene i config del client, ovvero:
      * • tcpPort, porta per socket Tcp
      * • rmiPort, porta per registro Rmi
      * • mcastPort, porta per socket mutlicast
-     * • serverAddress, indirizzo HotelierServer utilizzato dalle socket
+     * • rankingInterval, secondi da intercorrere tra calcoli successivi dei rank degli hotel
+     * • serverAddress, indirizzo socket Tcp/Rmi
      * • rmiRemoteReference, nome per reperire stub server dal registro rmi
      * • mcastAddress, indirizzo ip socket multicast
      */
@@ -15,14 +16,16 @@ public class HotelierClientConfig {
     private final int tcpPort;
     private final int rmiPort;
     private final int mcastPort;
+    private final int rankingInterval;
     private final String serverAddress;
     private final String rmiRemoteReference;
     private final String mcastAddress;
 
-    public HotelierClientConfig(int tcpPort, int rmiPort, int mcastPort, String serverAddress, String rmiRemoteReference, String mcastAddress) {
+    public HotelierServerConfig(int tcpPort, int rmiPort, int mcastPort, int rankingInterval, String serverAddress, String rmiRemoteReference, String mcastAddress) {
         this.tcpPort = tcpPort;
         this.rmiPort = rmiPort;
         this.mcastPort = mcastPort;
+        this.rankingInterval = rankingInterval;
         this.serverAddress = serverAddress;
         this.rmiRemoteReference = rmiRemoteReference;
         this.mcastAddress = mcastAddress;
@@ -40,6 +43,10 @@ public class HotelierClientConfig {
         return mcastPort;
     }
 
+    public int getRankingInterval() {
+        return rankingInterval;
+    }
+
     public String getServerAddress() {
         return serverAddress;
     }
@@ -51,4 +58,5 @@ public class HotelierClientConfig {
     public String getMcastAddress() {
         return mcastAddress;
     }
+
 }

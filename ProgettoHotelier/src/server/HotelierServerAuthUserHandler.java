@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static server.ServerJsonSettings.USERS_PATH_JSON;
+import static server.config.ServerJsonSettings.USERS_PATH_JSON;
 
 public class HotelierServerAuthUserHandler {
     public static HotelierServerAuthUserHandler instance = null;

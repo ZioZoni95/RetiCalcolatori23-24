@@ -1,4 +1,4 @@
-package RMI;
+package RMI.RMIClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.Hotel;
@@ -58,12 +58,12 @@ public class HotelierClientRmiImp implements HotelierClientInterface {
 }
 
     /*
-    private HotelierServerServiceInterface server;
+    private HotelierServerInterface server;
 
 
     public HotelierClientRmi(String host, int port) throws Exception {
         Registry registry = LocateRegistry.getRegistry(host, port);
-        server = (HotelierServerServiceInterface) registry.lookup("HotelierServer");
+        server = (HotelierServerInterface) registry.lookup("HotelierServer");
     }
 
     /**

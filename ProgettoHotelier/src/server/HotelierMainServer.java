@@ -1,6 +1,6 @@
 package server;
 import Handlers.LoginHandlerUtente;
-import RMI.HotelierServerServiceInterfaceImpl;
+import RMI.HotelierServerInterfaceImpl;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,7 +15,7 @@ public class HotelierMainServer {
 
             // Configura e avvia il server RMI per la gestione utenti
             LoginHandlerUtente userHandler = new LoginHandlerUtente();
-            HotelierServerServiceInterfaceImpl userServer = new HotelierServerServiceInterfaceImpl(userHandler);
+            HotelierServerInterfaceImpl userServer = new HotelierServerInterfaceImpl(userHandler);
 
             Registry registry = LocateRegistry.createRegistry(1099);
             registry.rebind("HotelierServer", userServer);

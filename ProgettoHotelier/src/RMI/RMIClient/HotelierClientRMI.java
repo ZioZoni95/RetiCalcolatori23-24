@@ -1,5 +1,6 @@
-package RMI;
+package RMI.RMIClient;
 
+import RMI.RMIServer.HotelierServerInterface;
 import model.Hotel;
 
 import java.rmi.RemoteException;
@@ -11,13 +12,13 @@ import java.util.Map;
 
 public class HotelierClientRMI {
     private final HotelierClientRmiImp client;
-    private HotelierServerServiceInterface stubServer;
+    private HotelierServerInterface stubServer;
     private HotelierClientInterface stubClient;
 
     public HotelierClientRMI(String serverAddress,String rmiRemoteReference, int rmiPort) throws Exception{
         client = new HotelierClientRmiImp();
         Registry registry = LocateRegistry.getRegistry(serverAddress,rmiPort);
-        stubServer = (HotelierServerServiceInterface) registry.lookup(rmiRemoteReference);
+        stubServer = (HotelierServerInterface) registry.lookup(rmiRemoteReference);
         stubClient = (HotelierClientInterface) UnicastRemoteObject.exportObject(client,0);
     }
 
