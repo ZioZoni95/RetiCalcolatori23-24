@@ -1,0 +1,26 @@
+package server;
+
+import utils.JsonUtils;
+
+import java.io.File;
+import java.io.IOException;
+
+import static server.ServerJsonSettings.SERVER_CONFIG_JSON;
+
+public class ConfigManager {
+    private static HotelierServerConfig serverConfig;
+
+    public static void createDefeaultSesttings(){
+        try{
+            serverConfig = new HotelierServerConfig(9999, 1099, 49152, 10, "localhost", "Hotelier-Service_Program", "230.0.0.0");
+            var jsonConfig = JsonUtils.serialize(serverConfig);
+            JsonUtils.writeFile(jsonConfig, new File(SERVER_CONFIG_JSON));
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public HotelierServerConfig getServerConfig(){
+        return serverConfig;
+    }
+}

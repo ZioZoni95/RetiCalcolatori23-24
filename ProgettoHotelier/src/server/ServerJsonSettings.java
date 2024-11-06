@@ -1,0 +1,17 @@
+package server;
+
+import java.io.File;
+
+public class ServerJsonSettings {
+    // path folder file json server
+    public static final String APPLICATION_NAME = "HotelierServer";
+    // path file json hotels
+    public static final String HOTELS_PATH_JSON = "" + File.separator + "Hotels.json";
+    // path file json reviews
+    public static final String REVIEWS_PATH_JSON = "HotelierServer" + File.separator + "Reviews.json";
+    // path file json useres
+    public static final String USERS_PATH_JSON = "HotelierServer" + File.separator + "Users.json";
+    // path file json config server
+    public static final String SERVER_CONFIG_JSON = "HotelierServer" + File.separator + "ServerConfig.json";
+
+}
