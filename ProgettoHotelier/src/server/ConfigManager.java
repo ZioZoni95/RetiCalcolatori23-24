@@ -20,7 +20,18 @@ public class ConfigManager {
         }
     }
 
-    public HotelierServerConfig getServerConfig(){
+    public static void loadServerConfig() {
+        try {
+            var configJSON = JsonUtils.readFile(new File(SERVER_CONFIG_JSON));
+            serverConfig = JsonUtils.deserialize(configJSON, HotelierServerConfig.class);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    // restituisce server config
+    public static HotelierServerConfig getServerConfig() {
         return serverConfig;
     }
+
 }

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static server.ServerJsonSettings.USERS_PATH_JSON;
+
 public class HotelierServerAuthUserHandler {
     public static HotelierServerAuthUserHandler instance = null;
 
@@ -76,7 +78,7 @@ public class HotelierServerAuthUserHandler {
         try{
             synchronized (users){
                 String jsonUser = JsonUtils.serialize(users);
-                JsonUtils.writeFile(jsonUser, new File(USER_JSON_PATH));
+                JsonUtils.writeFile(jsonUser, new File(USERS_PATH_JSON));
             }
         }catch (IOException e){
             e.printStackTrace();
@@ -86,7 +88,7 @@ public class HotelierServerAuthUserHandler {
     public void deserialize(){
         try{
             synchronized (users){
-             var userFile = new File(USER_JSON_PATH);
+             var userFile = new File(USERS_PATH_JSON);
              var userJson = JsonUtils.readFile(userFile);
              var deserializedUsers = Arrays.asList(JsonUtils.deserialize(userJson,Utente[].class));
              users.addAll(deserializedUsers);

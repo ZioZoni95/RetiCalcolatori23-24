@@ -15,3 +15,4 @@ public class ServerJsonSettings {
     public static final String SERVER_CONFIG_JSON = "HotelierServer" + File.separator + "ServerConfig.json";
 
 }
+//da vedere i path
