@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class HotelierNIOServerTCP implements Runnable{
     private final String serverAddress;
@@ -66,6 +67,9 @@ public class HotelierNIOServerTCP implements Runnable{
                         Request_ResponseMessage packet = clientHandler.handleRead();
 
                         if (packet != null) {
+                            ThreadPoolExecutor poolExecutor = (ThreadPoolExecutor) threadpool;
+                            System.out.println("Active Threads: " + poolExecutor.getActiveCount());
+                            System.out.println("Queue Size: " + poolExecutor.getQueue().size());
                             threadpool.submit(() -> {
                                 clientHandler.handlePacket(packet);
                             });

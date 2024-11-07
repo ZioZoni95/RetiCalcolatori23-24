@@ -24,6 +24,11 @@ public class CommandParser {
     private static HotelierCommands_Client commandFilter(String c_name, String[] c_args){
         //filtro per nome del comando
         switch (c_name) {
+            case "aiuto":
+                if(c_args == null){
+                    return new HotelierCommands_Client(c_name,c_args, HotelierCommands_Client.commandTypes.COMMAND_LOCAL);
+                }
+
             case "exit":
                 if(c_args == null){
                     return  new HotelierCommands_Client(c_name,c_args, HotelierCommands_Client.commandTypes.COMMAND_LOCAL);
@@ -59,12 +64,12 @@ public class CommandParser {
                     return new HotelierCommands_Client(c_name,c_args, HotelierCommands_Client.commandTypes.COMMAND_TCP);
                 }
                 break;
-            case "insertReview":
+            case "insertreview":
                 if(c_args != null && checkArgsReview(c_args)){
                     return new HotelierCommands_Client(c_name,c_args, HotelierCommands_Client.commandTypes.COMMAND_TCP);
                 }
                 break;
-            case "showMyBadges":
+            case "showmybadges":
                 if (c_args == null){
                     return new HotelierCommands_Client(c_name,c_args, HotelierCommands_Client.commandTypes.COMMAND_TCP);
                 }
@@ -82,8 +87,8 @@ public class CommandParser {
         if (c_args.length != 7) {
             return false;
         }
-        for (int i = 0; i <= 6; i++) {
-            if (!isInteger(c_args[i]) || isValidScore(c_args[i])) {
+        for (int i = 2; i <= 6; i++) {
+            if (!isInteger(c_args[i]) || !isValidScore(c_args[i])) {
                 return false;
             }
         }

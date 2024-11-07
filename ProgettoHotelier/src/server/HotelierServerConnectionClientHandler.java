@@ -1,6 +1,7 @@
 package server;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -43,7 +44,7 @@ public class HotelierServerConnectionClientHandler {
         if (isConnected) {
             try {
                 if (requestHeader == null) {
-                    requestHeader = ByteBuffer.allocate(8);
+                    requestHeader = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
                 }
 
                 if (requestHeader.hasRemaining()) {
@@ -55,12 +56,12 @@ public class HotelierServerConnectionClientHandler {
                 if (!requestHeader.hasRemaining() && requestPayload == null) {
                     requestHeader.flip();
                     int payloadSize = requestHeader.getInt();
-                    requestPayload = ByteBuffer.allocate(payloadSize);
+                    requestPayload = ByteBuffer.allocate(payloadSize).order(ByteOrder.BIG_ENDIAN);
                 }
 
                 if (requestPayload != null && requestPayload.hasRemaining()) {
                     if (client.read(requestPayload) == -1) {
-                        throw new IOException();
+                        throw new IOException("<Errore di lettura>: client disconnesso durante la lettura del payload");
                     }
                 }
 
@@ -122,7 +123,7 @@ public class HotelierServerConnectionClientHandler {
             if (packetID != -1) {
                 byte[] serializedPacket = objectMapper.writeValueAsBytes(packet);
                 int payloadSize = serializedPacket.length;
-                ByteBuffer serializedResponse = ByteBuffer.allocate(4 + 4 + payloadSize);
+                ByteBuffer serializedResponse = ByteBuffer.allocate(4 + 4 + payloadSize).order(ByteOrder.BIG_ENDIAN);
                 serializedResponse.putInt(payloadSize);
                 serializedResponse.putInt(packetID);
                 serializedResponse.put(serializedPacket);
@@ -139,9 +140,13 @@ public class HotelierServerConnectionClientHandler {
         byte[] payloadBytes = new byte[requestPayload.remaining()];
         requestPayload.get(payloadBytes);
         try {
-            return messageSerialization.getPacketFromID(packetID, objectMapper.readValue(payloadBytes, ByteBuffer.class));
+            // Directly deserialize JSON to Request_ResponseMessage using ObjectMapper
+            Request_ResponseMessage packet = objectMapper.readValue(payloadBytes, Request_ResponseMessage.class);
+
+            // Optionally validate packetID or use packetID to determine specific type if needed
+            return packet;
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error deserializing request: " + e.getMessage());
             return null;
         }
     }

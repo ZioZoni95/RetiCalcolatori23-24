@@ -6,6 +6,8 @@ public class HotelRate {
     private  float services;
     private float quality;
 
+    public HotelRate() {}
+
     public HotelRate(float cleaning, float position, float services, float quality){
         this.cleaning = cleaning;
         this.position = position;

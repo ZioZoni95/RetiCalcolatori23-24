@@ -8,4 +8,19 @@
   "username" : "ciao",
   "password" : "ciao",
   "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "bau",
+  "password" : "chino",
+  "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "chiara",
+  "password" : "klops",
+  "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "antonino",
+  "password" : "ciao",
+  "reviewCount" : 0
 } ]

@@ -144,7 +144,7 @@ public class HotelierServerMessageManager {
         // ordino lista di hotel in modo crescente rispetto al rank locale
         Collections.sort(hotels, Comparator.comparingInt(Hotel::getLocalRank));
         // restituisco un pacchetto di risposta contentente la lista di hotel ordinata
-        searchHotelResponseMessage packetHotelListResponse = new searchHotelResponseMessage((Hotel) hotels);
+        searchAllHotelsResponseMessage packetHotelListResponse = new searchAllHotelsResponseMessage(hotels);
         return packetHotelListResponse;
     }
 

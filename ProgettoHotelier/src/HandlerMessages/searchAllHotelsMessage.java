@@ -1,7 +1,9 @@
 package HandlerMessages;
 
 public class searchAllHotelsMessage extends Request_ResponseMessage {
-    private final String city;
+    private String city;
+
+    public searchAllHotelsMessage() {}
 
     public searchAllHotelsMessage(String city){
         this.city = city;

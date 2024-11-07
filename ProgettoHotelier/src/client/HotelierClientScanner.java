@@ -31,7 +31,7 @@ public class HotelierClientScanner implements Runnable {
 
             while (!Thread.interrupted()){
                 System.out.print("Inserisci comando: ");
-                String input = scanner.nextLine(); //recupero l'input da cli
+                    String input = scanner.nextLine(); //recupero l'input da cli
 
                 if(input.isEmpty()){
                     continue;

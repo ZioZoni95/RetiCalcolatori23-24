@@ -58,17 +58,21 @@ public class HotelierServerHotelManager {
 
         // creo una nuova lista di hotel
         List<Hotel> hotelsCity = new ArrayList<>();
+        List<Hotel> copyHotels;
         // acquisisco la lock sulla lista di hotel
         synchronized (hotels) {
+            copyHotels = new ArrayList<>(hotels);
+        }
+            System.out.println("SONO NELLA SYNCRO!!");
             // itero la lista di tutti gli hotel del registro
-            for (Hotel hotel : hotels) {
+            for (Hotel hotel : copyHotels) {
                 // controllo se città hotel corrisponde a quella passato (ingnoreCase)
                 if (StringUtils.equalsIgnoreCase(hotel.getCity(), city)) {
                     // aggiungo hotel a hotelsCity
                     hotelsCity.add(hotel);
                 }
             }
-        }
+
         // restituisco la lista di hotel
         return hotelsCity;
     }

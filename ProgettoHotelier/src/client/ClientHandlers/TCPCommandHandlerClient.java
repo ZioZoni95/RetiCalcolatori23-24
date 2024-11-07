@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import model.Hotel;
 import model.HotelRate;
+import utils.JsonUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +57,7 @@ public class TCPCommandHandlerClient {
             case "login" -> createPacketLogin(c_args);
             case "logout" -> createPacketLogout();
             case "searchHotel" -> createPacketHotel(c_args);
-            case "searchAllHotels" -> createPacketAllHotels(c_args);
+            case "searchallhotels" -> createPacketAllHotels(c_args);
             case "insertReview" -> createPacketReview(c_args);
             case "showMyBadges" -> createPacketBadgeLevel();
             default -> null;
@@ -75,16 +76,23 @@ public class TCPCommandHandlerClient {
         outputStream.flush();
     }
 
-    private Request_ResponseMessage receivePacket() throws IOException{
-        byte[] respondeByte = new byte[8]; // header
-        readAllBytes(respondeByte);
-        ByteBuffer responseHeader = ByteBuffer.wrap(respondeByte);
-        int payload = responseHeader.getInt();
+    private Request_ResponseMessage receivePacket() throws IOException {
+        byte[] responseByte = new byte[8]; // header
+        readAllBytes(responseByte);
+        ByteBuffer responseHeader = ByteBuffer.wrap(responseByte);
+        int payloadSize = responseHeader.getInt();
         int packet_id = responseHeader.getInt();
-        byte[] responsePayload_bytes = new byte[payload];
-        readAllBytes(responsePayload_bytes);
-        ByteBuffer responsePayload = ByteBuffer.wrap(responsePayload_bytes);
-        return messageSerialization.getPacketFromID(packet_id,responsePayload);
+
+        byte[] responsePayloadBytes = new byte[payloadSize];
+        readAllBytes(responsePayloadBytes);
+        String jsonPayload = new String(responsePayloadBytes);
+
+        try {
+            return JsonUtils.deserializeRequestResponseMessage(jsonPayload);
+        } catch (IOException e) {
+            System.err.println("Error deserializing request: " + e.getMessage());
+            throw e;
+        }
     }
 
     private Request_ResponseMessage createPacketLogin(String[] c_args) {

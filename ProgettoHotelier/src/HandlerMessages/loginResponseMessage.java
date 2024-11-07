@@ -1,8 +1,9 @@
 package HandlerMessages;
 
 public class loginResponseMessage extends Request_ResponseMessage {
-    private final String loginResponse;
+    private  String loginResponse;
 
+    public loginResponseMessage() {}
     public loginResponseMessage(String loginResponse){
         this.loginResponse = loginResponse;
     }

@@ -5,8 +5,9 @@ import model.Hotel;
 import java.util.List;
 
 public class searchAllHotelsResponseMessage extends Request_ResponseMessage {
-    private final List<Hotel> hotels;
+    private  List<Hotel> hotels;
 
+    public searchAllHotelsResponseMessage() {}
     public searchAllHotelsResponseMessage(List<Hotel> hotels){
         this.hotels = hotels;
     }

@@ -1,13 +1,16 @@
 package HandlerMessages;
 
 public class loginMessageRequest extends Request_ResponseMessage {
-    private final String username;
-    private final String password;
+    private  String username;
+    private  String password;
 
+    public loginMessageRequest() {}
     public loginMessageRequest(String username, String password){
         this.username = username;
         this.password = password;
     }
+
+    //public loginMessageRequest(){}
 
     public String getUsername(){
         return username;

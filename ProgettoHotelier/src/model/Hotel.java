@@ -6,17 +6,18 @@ import java.util.List;
 
 public class Hotel {
     private int id;
-    private final String name;
-    private final String description;
-    private final String city;
-    private final String phone;
-    private final List<String> services;
+    private  String name;
+    private  String description;
+    private  String city;
+    private  String phone;
+    private  List<String> services;
     private float rate;
     private HotelRate ratings;
     private int reviewCount;
     private double rank;
     private int localRank;
 
+    public Hotel() {}
     public Hotel(int id,String name, String description, String city, String phone, List<String> services, int rate,
                 HotelRate ratings){
         this.id = id;
