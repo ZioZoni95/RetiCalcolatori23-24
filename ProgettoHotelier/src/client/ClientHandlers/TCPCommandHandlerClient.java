@@ -1,4 +1,4 @@
-package Handlers;
+package client.ClientHandlers;
 import HandlerMessages.*;
 import HandlerMessages.Request_ResponseMessage;
 import HandlerMessages.loginMessageRequest;
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import model.Hotel;
 import model.HotelRate;
-import model.Recensioni;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -135,7 +134,8 @@ public class TCPCommandHandlerClient {
     }
 
     private Request_ResponseMessage createPacketBadgeLevel() {
-        return new badgeLevelMessageRequest();
+        badgeLevelMessageRequest badge_packet = new badgeLevelMessageRequest();
+        return badge_packet;
     }
 
     private String getRespone(Request_ResponseMessage net_packet) throws IOException{

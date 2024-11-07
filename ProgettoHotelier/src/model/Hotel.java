@@ -12,13 +12,13 @@ public class Hotel {
     private final String phone;
     private final List<String> services;
     private float rate;
-    private Recensioni ratings;
+    private HotelRate ratings;
     private int reviewCount;
     private double rank;
     private int localRank;
 
     public Hotel(int id,String name, String description, String city, String phone, List<String> services, int rate,
-                Recensioni ratings){
+                HotelRate ratings){
         this.id = id;
         this.name = name;
         this.description = description;
@@ -26,7 +26,8 @@ public class Hotel {
         this.phone = phone;
         this.services = new ArrayList<>(services);
         this.rate = rate;
-        this.ratings = new Recensioni(ratings);
+        this.ratings = new HotelRate(ratings);
+
     }
 
     // copy constructor, restitusce una copia dell' istanza hotel passata
@@ -38,7 +39,7 @@ public class Hotel {
         this.phone = hotel.phone;
         this.services = new ArrayList<>(hotel.services);
         this.rate = hotel.rate;
-        this.ratings = new Recensioni(hotel.ratings);
+        this.ratings = new HotelRate(hotel.ratings);
         this.reviewCount = hotel.reviewCount;
         this.rank = hotel.rank;
         this.localRank = hotel.localRank;
@@ -74,17 +75,22 @@ public class Hotel {
         return rate;
     }
 
-    public synchronized void setRate(int rate) {
+    public synchronized void setRate(float rate) {
         this.rate = rate;
     }
 
-    public synchronized Recensioni getRatings() {
+    public synchronized HotelRate getRatings() {
         return ratings;
     }
 
-    public synchronized void setRatings(Recensioni ratings) {
+    public synchronized void setRatings(HotelRate ratings) {
         this.ratings = ratings;
     }
+
+    public synchronized int getReviewCount() {
+        return reviewCount;
+    }
+
 
     public synchronized void setReviewCount(int reviewCount){
         this.reviewCount = reviewCount;
@@ -98,13 +104,18 @@ public class Hotel {
         return rank;
     }
 
-    public synchronized double setRankLevel(){
+    public synchronized void setRankLevel(double rank){
         this.rank = rank;
     }
 
     public synchronized void setLocalRanking(int localRank){
         this.localRank = localRank;
     }
+
+    public synchronized int getLocalRank() {
+        return localRank;
+    }
+
 
     @Override
     public String toString() {

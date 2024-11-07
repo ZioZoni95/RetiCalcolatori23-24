@@ -1,5 +1,8 @@
 package client.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class HotelierClientConfig {
 
     /**
@@ -19,7 +22,15 @@ public class HotelierClientConfig {
     private final String rmiRemoteReference;
     private final String mcastAddress;
 
-    public HotelierClientConfig(int tcpPort, int rmiPort, int mcastPort, String serverAddress, String rmiRemoteReference, String mcastAddress) {
+    @JsonCreator
+    public HotelierClientConfig(
+            @JsonProperty("tcpPort") int tcpPort,
+            @JsonProperty("rmiPort") int rmiPort,
+            @JsonProperty("mcastPort") int mcastPort,
+            @JsonProperty("serverAddress") String serverAddress,
+            @JsonProperty("rmiRemoteReference") String rmiRemoteReference,
+            @JsonProperty("mcastAddress") String mcastAddress
+    ) {
         this.tcpPort = tcpPort;
         this.rmiPort = rmiPort;
         this.mcastPort = mcastPort;

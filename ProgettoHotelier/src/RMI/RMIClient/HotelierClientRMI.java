@@ -26,6 +26,13 @@ public class HotelierClientRMI {
         return stubServer.registerUser(username,password);
     }
 
+    // richiede la registrazione di una callback per le città di interesse
+    public void registerInterests(List<String> cities) throws RemoteException {
+
+        // eseguo l' invocazione remota del metodo sul server per la registrazione di un callback per le città di interesse
+        stubServer.registerCallback(stubClient, cities);
+    }
+
     public void removeInterest() throws RemoteException{
         stubServer.unregisterCallback(stubClient);
     }

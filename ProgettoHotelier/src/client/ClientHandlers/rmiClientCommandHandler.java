@@ -1,4 +1,4 @@
-package Handlers;
+package client.ClientHandlers;
 
 import RMI.RMIClient.HotelierClientRMI;
 import client.HotelierCommands_Client;

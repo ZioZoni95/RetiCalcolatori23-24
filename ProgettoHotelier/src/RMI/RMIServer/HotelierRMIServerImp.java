@@ -1,7 +1,7 @@
 package RMI.RMIServer;
 
 import RMI.RMIClient.HotelierClientInterface;
-import server.HotelierServerAuthUserHandler;
+import server.HotelierServerUserManager;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -11,10 +11,10 @@ import java.util.Map;
 public class HotelierRMIServerImp implements HotelierServerInterface {
 
     private final Map<HotelierClientInterface, List<String>> clientCallback;
-    private HotelierServerAuthUserHandler usersAuthenticated;
+    private HotelierServerUserManager usersAuthenticated;
 
     public HotelierRMIServerImp(){
-        usersAuthenticated = HotelierServerAuthUserHandler.getInstance();
+        usersAuthenticated = HotelierServerUserManager.getInstance();
         clientCallback = new HashMap<>();
     }
 

@@ -12,12 +12,12 @@ import java.util.List;
 
 import static server.config.ServerJsonSettings.USERS_PATH_JSON;
 
-public class HotelierServerAuthUserHandler {
-    public static HotelierServerAuthUserHandler instance = null;
+public class HotelierServerUserManager {
+    public static HotelierServerUserManager instance = null;
 
-    public static HotelierServerAuthUserHandler getInstance(){
+    public static HotelierServerUserManager getInstance(){
         if(instance == null){
-            instance = new HotelierServerAuthUserHandler();
+            instance = new HotelierServerUserManager();
         }
         return instance;
     }
@@ -25,7 +25,7 @@ public class HotelierServerAuthUserHandler {
     //lista di tutti gli utenti
     private List<Utente> users;
 
-    private HotelierServerAuthUserHandler(){
+    private HotelierServerUserManager(){
         users = new ArrayList<>();
     }
 

@@ -1,88 +1,60 @@
 package client;
 
-import RMI.RMIClient.HotelierClientRmiImp;
+import RMI.RMIClient.HotelierClientRMI;
+import client.config.ClientConfigManager;
 
-import java.util.Scanner;
+import java.io.File;
+import java.io.IOException;
+
+import static client.config.ClientConfigSetting.CLIENT_CONFIG_PATH_JSON;
 
 public class HotelierClientMain {
-    public static void main(String[] args) {
-        try {
-            int nioPort = 9999;
-            String rmiHost = "localhost";
-            int rmiPort = 1099;
 
-            // Inizializza client RMI per register, login e logout
-            HotelierClientRmiImp rmiClient = new HotelierClientRmiImp(rmiHost, rmiPort);
 
-            // Inizializza client NIO per i comandi searchHotel e searchAllHotels
-            HotelierNIOClient nioClient = new HotelierNIOClient(nioPort);
+    public static void main(String[] args) throws IOException  {
 
-            // Start the NIO client in a new thread
-            Thread nioClientThread = new Thread(nioClient);
-            nioClientThread.start();
+        // inizializzo il server
+        initialize();
+        // avvio il client
+        startCLient();
+    }
 
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Comandi disponibili: register, login, logout, searchHotel <NomeHotel> <Città>, searchAllHotels <Città>, exit");
+    // inizializza il server
+    private static void initialize() throws IOException {
 
-            while (true) {
-                System.out.print("Inserisci comando: ");
-                String commandLine = scanner.nextLine().trim();
-                String[] tokens = commandLine.split(" ");
+        // recupero il file config del client dal path specificato
+        File configFile = new File(CLIENT_CONFIG_PATH_JSON);
 
-                // Check if there are any tokens
-                if (tokens.length == 0) {
-                    System.out.println("Comando non riconosciuto.");
-                    continue;
-                }
-
-                // Use switch-case to handle commands
-                switch (tokens[0].toLowerCase()) {
-                    case "register":
-                        if (tokens.length == 3) {
-                            String response = rmiClient.register(tokens[1], tokens[2]);
-                            System.out.println("Risposta RMI: " + response);
-                        } else {
-                            System.out.println("Comando errato. Usa: register <username> <password>");
-                        }
-                        break;
-
-                    case "login":
-                        if (tokens.length == 3) {
-                            String response = rmiClient.login(tokens[1], tokens[2]);
-                            System.out.println("Risposta RMI: " + response);
-                        } else {
-                            System.out.println("Comando errato. Usa: login <username> <password>");
-                        }
-                        break;
-
-                    case "logout":
-                        if (tokens.length == 2) {
-                            String response = rmiClient.logout(tokens[1]);
-                            System.out.println("Risposta RMI: " + response);
-                        } else {
-                            System.out.println("Comando errato. Usa: logout <username>");
-                        }
-                        break;
-
-                    case "searchhotel":
-                    case "searchallhotels":
-                        // Invia comando al client NIO
-                        nioClient.sendCommand(commandLine);
-                        break;
-
-                    case "exit":
-                        System.out.println("Uscita dal client.");
-                        scanner.close(); // Ensure the scanner is closed before breaking
-                        return; // Exit the main method
-
-                    default:
-                        System.out.println("Comando non riconosciuto.");
-                        break;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        // controllo se il file config esiste
+        if (!configFile.exists()) {
+            // file non esiste: creo un nuovo file config con path specificato e valori di defult
+            configFile.createNewFile();
+            ClientConfigManager.createDeafaultSettings();
+        } else {
+            // file esiste: deserializzo il file da disco
+            ClientConfigManager.loadConfigCLient();
         }
     }
-}
 
+    // avvio il client
+    private static void startCLient() {
+
+        try {
+            // ottengo i config del client
+            var clientConfig = ClientConfigManager.getClientConfig();
+            // inizializzo client rmi passando server address e rmiRemoteReference per recuperare stub server
+            var clientRmi = new HotelierClientRMI(clientConfig.getServerAddress(), clientConfig.getRmiRemoteReference(), clientConfig.getRmiPort());
+            // inizializzo reciever multicast passando mulitcast address e porta per ricevere notifiche Udp quando cambia primo hotel di qualsiasi rank locale
+            var multicastReciever = new ClientMulticast(clientConfig.getMcastAddress(), clientConfig.getMcastPort());
+            // inizializzo client cli passando client rmi e multicast reciever per la gestione dei comandi/richieste dell'utente
+            var clientScanner = new HotelierClientScanner(clientRmi, multicastReciever);
+
+        } catch (Exception e) {
+
+            //In caso di eccezione nella fase di startUp del client segnalo che è impossibile contattare il server
+            System.out.println("<Errore> Impossibile contattare il server di Hotelier.");
+            System.out.println("Terminazione Hotelier client ...");
+        }
+    }
+
+}

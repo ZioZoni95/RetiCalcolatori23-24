@@ -25,28 +25,28 @@ public class HotelRate {
     public synchronized float getCleaning(){
         return cleaning;
     }
-    public synchronized void setCleaning(){
+    public synchronized void setCleaning(float cleaning){
         this.cleaning = cleaning;
     }
 
     public synchronized float getPosition(){
         return position;
     }
-    public synchronized void setPosition(){
+    public synchronized void setPosition(float position){
         this.position = position;
     }
 
     public synchronized float getServices(){
         return services;
     }
-    public synchronized void setServices(){
+    public synchronized void setServices(float services){
         this.services = services;
     }
 
     public synchronized float getQuality(){
         return quality;
     }
-    public synchronized void setQuality(){
+    public synchronized void setQuality(float quality){
         this.quality = quality;
     }
 

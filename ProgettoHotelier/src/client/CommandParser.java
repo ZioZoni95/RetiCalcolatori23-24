@@ -41,7 +41,7 @@ public class CommandParser {
                 break;
             case "login":
                 if(c_args !=null && c_args.length ==2) {
-                    return new HotelierCommands_Client(c_name, c_args, HotelierCommands_Client.commandTypes.COMMAND_RMI);
+                    return new HotelierCommands_Client(c_name, c_args, HotelierCommands_Client.commandTypes.COMMAND_TCP);
                 }
                 break;
             case "logout":
@@ -54,7 +54,7 @@ public class CommandParser {
                     return new HotelierCommands_Client(c_name, c_args, HotelierCommands_Client.commandTypes.COMMAND_TCP);
                 }
                 break;
-            case "searchAllHotels":
+            case "searchallhotels":
                 if(c_args != null && c_args.length == 1){
                     return new HotelierCommands_Client(c_name,c_args, HotelierCommands_Client.commandTypes.COMMAND_TCP);
                 }

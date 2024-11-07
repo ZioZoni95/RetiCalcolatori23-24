@@ -13,7 +13,7 @@ public class Utente {
     private UserBadge badgeLevel;
 
     // Costruttore di default richiesto da Jackson
-   // public Utente() {}
+    public Utente() {}
 
     public Utente(String username, String password) {
         this.username = username;

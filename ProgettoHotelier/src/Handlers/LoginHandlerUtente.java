@@ -47,6 +47,11 @@ public class LoginHandlerUtente {
         }
         return false;
     }
+
+    // rimuove utente alla lista di utenti loggati
+    public synchronized void removeUser(Utente user) {
+        utentiLoggati.remove(user);
+    }
 }
 
     /*    private static final String USER_DATA_FILE = "users.json"; // Percorso del file JSON
