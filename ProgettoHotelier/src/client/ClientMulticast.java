@@ -6,83 +6,87 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 public class ClientMulticast implements Runnable {
-    private MulticastSocket socket;
-    private InetAddress group_addr;
-   // private boolean isJoined = false;
+    private MulticastSocket socket; // Socket per la comunicazione multicast
+    private InetAddress group_addr; // Indirizzo del gruppo multicast
+    private boolean isJoined = false; // Stato di adesione al gruppo multicast
 
+    // Costruttore: inizializza la socket multicast e l'indirizzo del gruppo
     public ClientMulticast(String mcAddress, int mc_port){
         try {
-            // instazione una nuova socket multicast con porta passata
+            // Crea una nuova socket multicast con la porta passata come parametro
             socket = new MulticastSocket(mc_port);
-            // ottengo address da indirizzo passato
+            // Ottiene l'indirizzo del gruppo multicast dall'indirizzo passato come parametro
             group_addr = InetAddress.getByName(mcAddress);
         } catch (IOException e) {
+            // Gestisce eventuali eccezioni di I/O durante la creazione della socket e dell'indirizzo
             e.printStackTrace();
         }
 
-        // avvio il thread
+        // Avvia il thread per la gestione delle notifiche multicast
         Thread thread = new Thread(this);
         thread.start();
     }
 
-    // effettua la join del gruppo multicast
+    // Effettua la join al gruppo multicast
     public void joinGroup() {
         try {
-           // if (!isJoined) {
-                socket.joinGroup(group_addr); // Join the multicast group
-               // isJoined = true;
-            //}
-        }catch (IOException e) {
+            // Si unisce al gruppo multicast per ricevere i pacchetti
+            socket.joinGroup(group_addr); // Join the multicast group
+        } catch (IOException e) {
+            // Gestisce eventuali eccezioni di I/O durante l'adesione al gruppo
             e.printStackTrace();
         }
     }
 
-    // effettua la leave dal gruppo multicast
+    // Effettua il leave dal gruppo multicast
     public void leaveGroup() {
         try {
-            //if (isJoined) {
-                socket.leaveGroup(group_addr);
-               // isJoined = false; // Mark as not joined
-          //  }
+            // Se il client è già unito al gruppo, lo lascia
+            if (isJoined) {
+                socket.leaveGroup(group_addr); // Leave the multicast group
+                isJoined = false; // Segna come non unito
+            }
         } catch (IOException e) {
+            // Gestisce eventuali eccezioni di I/O durante l'uscita dal gruppo
             e.printStackTrace();
         }
     }
 
-
+    // Metodo eseguito nel thread per la ricezione dei pacchetti multicast
     @Override
     public void run() {
 
         try {
-            // alloco un byte array di 1024 byte
+            // Alloca un array di byte di 1024 byte per ricevere i pacchetti UDP
             byte[] byteArray = new byte[1024];
-            // instanzio un DatagramPacket avente come array di byte byteArray e lunghezza la lunghezza di byteArray per ricever notifiche Udp
+            // Crea un DatagramPacket con il byte array per ricevere le notifiche
             DatagramPacket packet = new DatagramPacket(byteArray, byteArray.length);
 
-            // itero finchè il thread non viene interrotto
+            // Loop che continua finché il thread non viene interrotto
             while (!Thread.interrupted()) {
 
-                // mi metto in attesa della notifica Udp
+                // Attende il ricevimento di un pacchetto multicast
                 socket.receive(packet);
 
-                // notifica ricevuta
-                // converto i byte ricevuti in una stringa risposta
+                // Una volta ricevuto il pacchetto, converte i byte in una stringa di risposta
                 String response = new String(packet.getData(), 0, packet.getLength());
-                // stampo la rispota
-                System.out.println("<Notifica Ricevuta:> " + response + "\n");
-                // eseguo il flush di system out
+                // Stampa la risposta ricevuta sulla console
+                System.out.println("\n<Notifica Ricevuta:> " + response + "\n");
+                // Esegue il flush di System.out per assicurarsi che la stampa sia visibile
                 System.out.flush();
             }
         } catch (IOException e) {
+            // Gestisce le eccezioni durante la ricezione dei pacchetti e chiude la socket
             close();
         }
     }
 
-    // chiude la socket multicast se ancora aperta
+    // Chiude la socket multicast se non è già chiusa
     public void close() {
 
         if (!socket.isClosed()) {
-           // leaveGroup();
+            // Lascia il gruppo e chiude la socket
+            leaveGroup();
             socket.close();
         }
     }

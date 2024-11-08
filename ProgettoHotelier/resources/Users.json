@@ -4,10 +4,10 @@
   "password" : "pppfpdfp",
   "reviewCount" : 0
 }, {
-  "badgeLevel" : "Contribuente_Esperto",
+  "badgeLevel" : "Super_Contribuente",
   "username" : "ciao",
   "password" : "ciao",
-  "reviewCount" : 4
+  "reviewCount" : 10
 }, {
   "badgeLevel" : "Recensore_Esperto",
   "username" : "bau",
@@ -33,4 +33,9 @@
   "username" : "prova2",
   "password" : "prova",
   "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "final",
+  "password" : "final",
+  "reviewCount" : 1
 } ]

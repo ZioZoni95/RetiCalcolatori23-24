@@ -10,17 +10,23 @@ import java.util.*;
 
 import static server.config.ServerJsonSettings.HOTELS_PATH_JSON;
 
+/**
+ * La classe HotelierServerHotelManager gestisce gli hotel all'interno di Hotelier.
+ * Fornisce metodi per recuperare, aggiornare e gestire informazioni sugli hotel,
+ * inclusa la ricerca per ID, nome e città. Utilizza una lista sincronizzata per garantire
+ * l'accesso concorrente agli hotel e offre funzionalità per la serializzazione
+ * e deserializzazione degli hotel tramite JSON per la persistenza su disco.
+ */
 public class HotelierServerHotelManager {
 
-    /**
-     * La HotelierServerHotelManager gestisce gli hotel all' interno di Hotelier.
-     * Fornisce metodi per recuperare, aggiornare e gestire informazioni sugli hotel, inclusa la ricerca per ID, nome e città.
-     * Utilizza una lista sincronizzata per garantire l'accesso concorrente agli hotel e offre funzionalità per la serializzazione
-     * e deserializzazione degli hotel tramite JSON per la persistenza su disco.
-     */
-
+    // Variabile di istanza per il pattern Singleton
     private static HotelierServerHotelManager instance = null;
 
+    /**
+     * Restituisce l'istanza singola della classe.
+     *
+     * @return L'istanza singola di HotelierServerHotelManager.
+     */
     public static HotelierServerHotelManager getInstance() {
         if (instance == null) {
             instance = new HotelierServerHotelManager();
@@ -28,135 +34,155 @@ public class HotelierServerHotelManager {
         return instance;
     }
 
-    // lista degli hotel del registro
+    // Lista degli hotel nel registro
     private List<Hotel> hotels;
 
+    /**
+     * Costruttore della classe. Inizializza la lista di hotel.
+     */
     private HotelierServerHotelManager() {
-        // inzializzo la lista di hotel a ArryList
+        // Inizializzo la lista di hotel come un ArrayList
         hotels = new ArrayList<>();
     }
 
-    // restituisce hotel avente id passato, null se hotel non trovato
+    /**
+     * Restituisce un hotel tramite il suo ID.
+     *
+     * @param hotelID L'ID dell'hotel.
+     * @return L'hotel con l'ID specificato, oppure null se non trovato.
+     */
     public Hotel getHotelByID(int hotelID) {
-        // acquisisco la lock sulla lista di hotel
+        // Acquisisco la lock sulla lista di hotel per garantire la sincronizzazione
         synchronized (hotels) {
-            // itero la lista di tutti gli hotel del registro
+            // Itero la lista di tutti gli hotel nel registro
             for (var hotel : hotels) {
-                // controllo se id hotel corrisponde a quello passato
+                // Controllo se l'ID dell'hotel corrisponde a quello passato
                 if (hotel.getId() == hotelID) {
-                    // restituisco hotel
-                    return hotel;
+                    return hotel; // Restituisco l'hotel trovato
                 }
             }
         }
-        // restituisco null
-        return null;
+        return null; // Se non trovato, restituisco null
     }
 
-    // restituisce list di hotel aventi città passata
+    /**
+     * Restituisce una lista di hotel situati nella città specificata.
+     *
+     * @param city La città in cui cercare gli hotel.
+     * @return Una lista di hotel nella città specificata.
+     */
     public List<Hotel> getHotelsByCity(String city) {
-
-        // creo una nuova lista di hotel
+        // Creo una nuova lista per gli hotel nella città
         List<Hotel> hotelsCity = new ArrayList<>();
         List<Hotel> copyHotels;
-        // acquisisco la lock sulla lista di hotel
-        synchronized (hotels) {
-            copyHotels = new ArrayList<>(hotels);
-        }
-        //    System.out.println("SONO NELLA SYNCRO!!");
-            // itero la lista di tutti gli hotel del registro
-            for (Hotel hotel : copyHotels) {
-                // controllo se città hotel corrisponde a quella passato (ingnoreCase)
-                if (StringUtils.equalsIgnoreCase(hotel.getCity(), city)) {
-                    // aggiungo hotel a hotelsCity
-                    hotelsCity.add(hotel);
-                }
-            }
 
-        // restituisco la lista di hotel
+        // Acquisisco la lock sulla lista di hotel per garantire la sincronizzazione
+        synchronized (hotels) {
+            copyHotels = new ArrayList<>(hotels); // Creo una copia della lista di hotel
+        }
+
+        // Itero la lista degli hotel
+        for (Hotel hotel : copyHotels) {
+            // Controllo se la città dell'hotel corrisponde a quella passata (ignorando maiuscole/minuscole)
+            if (StringUtils.equalsIgnoreCase(hotel.getCity(), city)) {
+                hotelsCity.add(hotel); // Aggiungo l'hotel alla lista
+            }
+        }
+
+        // Restituisco la lista degli hotel nella città
         return hotelsCity;
     }
 
-    // restituisce hotel avente id e città passati, null se hotel non trovato
+    /**
+     * Restituisce un hotel in base al nome e alla città.
+     *
+     * @param hotelName Il nome dell'hotel.
+     * @param city La città in cui si trova l'hotel.
+     * @return L'hotel che corrisponde sia al nome che alla città, o null se non trovato.
+     */
     public Hotel getHotelByNameAndCity(String hotelName, String city) {
-
-        // ottengo la lista di hotel aventi città passata
+        // Ottengo la lista di hotel situati nella città specificata
         List<Hotel> cityHotels = getHotelsByCity(city);
-        // acquisisco la lock sulla lista di hotel
+
+        // Acquisisco la lock sulla lista di hotel
         synchronized (hotels) {
-            // itero la lista di hotel
+            // Itero attraverso gli hotel nella città
             for (var hotel : cityHotels) {
-                // controllo se nome hotel corrisponde a quella passato (ingnoreCase)
+                // Controllo se il nome dell'hotel corrisponde a quello passato (ignorando maiuscole/minuscole)
                 if (StringUtils.equalsIgnoreCase(hotel.getName(), hotelName)) {
-                    // restituisco hotel
-                    return hotel;
+                    return hotel; // Restituisco l'hotel trovato
                 }
             }
         }
-        // restituisco null
-        return null;
+        return null; // Se non trovato, restituisco null
     }
 
-    // restituisce la lista di tutte le città degli hotel presenti nel registro
+    /**
+     * Restituisce la lista di tutte le città in cui sono presenti hotel.
+     *
+     * @return Una lista di tutte le città.
+     */
     public List<String> getCities() {
-
-        // creo un set di città per evitare duplicati
+        // Creo un set per evitare duplicati nelle città
         Set<String> cities = new HashSet<>();
-        // acquisisco la lock sulla lista di hotel
+
+        // Acquisisco la lock sulla lista di hotel
         synchronized (hotels) {
-            // itero la lista di tutti gli hotel del registro
+            // Itero la lista di hotel per estrarre le città uniche
             for (Hotel hotel : hotels) {
-                // aggiungo hotel a hotelsCity
-                cities.add(hotel.getCity());
+                cities.add(hotel.getCity()); // Aggiungo la città all'insieme
             }
         }
 
-        // restituisco lista delle città
+        // Restituisco la lista delle città
         return new ArrayList<>(cities);
     }
 
-    // restituisce lista degli hotel del registro
+    /**
+     * Restituisce la lista completa di tutti gli hotel nel registro.
+     *
+     * @return Una lista di tutti gli hotel.
+     */
     public List<Hotel> getHotels() {
-        // restituisco lista degli hotel del registro
+        // Restituisco la lista di tutti gli hotel
         return hotels;
     }
 
-    // persiste la lista di hotel del registro sul disco
+    /**
+     * Serializza la lista di hotel nel registro e la salva su disco in formato JSON.
+     */
     public void serialize() {
-
         try {
-            // acquisisco la lock sulla lista di hotel
+            // Acquisisco la lock sulla lista di hotel per garantire la sincronizzazione
             synchronized (hotels) {
-                // serializzo la lista di hotel in Json
+                // Serializzo la lista di hotel in formato JSON
                 String hotelsJson = JsonUtils.serialize(hotels);
-                // scrivo la lista seriliazzata sul file al path HOTELS_PATH_JSON
+                // Scrivo il JSON nel file di persistenza definito dal path HOTELS_PATH_JSON
                 JsonUtils.writeFile(hotelsJson, new File(HOTELS_PATH_JSON));
             }
-
         } catch (IOException exception) {
-            exception.printStackTrace();
+            exception.printStackTrace(); // Gestisco eventuali errori di I/O
         }
     }
 
-    // deserializza la lista di hotel da disco e li aggiunge alla lista di hotel del registro
+    /**
+     * Deserializza la lista di hotel dal disco e la aggiunge alla lista degli hotel nel registro.
+     */
     public void deserialize() {
-
         try {
-            // acquisisco la lock sulla lista di hotel
+            // Acquisisco la lock sulla lista di hotel
             synchronized (hotels) {
-                // ottengo il file contenente la lista di hotel
+                // Ottengo il file contenente gli hotel serializzati in formato JSON
                 var hotelFile = new File(HOTELS_PATH_JSON);
-                // leggo la lista di hotel serializzata in Json
+                // Leggo il contenuto del file JSON
                 var hotelsJSON = JsonUtils.readFile(hotelFile);
-                // deserializzo la lista di hotel
+                // Deserializzo i dati JSON nel formato di un array di Hotel
                 var deserializedHotels = Arrays.asList(JsonUtils.deserialize(hotelsJSON, Hotel[].class));
-                // aggiungo la lista di hotel deserializzata alla lista di hotel del registro
+                // Aggiungo gli hotel deserializzati alla lista di hotel
                 hotels.addAll(deserializedHotels);
             }
-
         } catch (IOException exception) {
-            exception.printStackTrace();
+            exception.printStackTrace(); // Gestisco eventuali errori di I/O
         }
     }
-
 }

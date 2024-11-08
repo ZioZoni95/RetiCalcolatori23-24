@@ -1,22 +1,32 @@
-package server;
+package server.Handlers;
 import Response_Request_netPackets.*;
 import Response_Request_netPackets.Request_ResponseMessage;
-import Handlers.LoginHandlerUtente;
 import model.Hotel;
 import model.Recensioni;
 import model.Utente;
+import server.HotelierServerHotelManager;
 
 import java.util.Collections;
 import java.util.Comparator;
 
+/**
+ * Questa classe gestisce i pacchetti di messaggi ricevuti dal client e fornisce risposte
+ * appropriate in base al tipo di richiesta. Si occupa di operazioni come login, logout,
+ * ricerca di hotel, inserimento recensioni, e gestione dei badge.
+ * Inoltre, gestisce la disconnessione dei client e l'aggiornamento dei dati degli hotel e degli utenti.
+ */
 public class HotelierServerMessageManager {
 
-    private Utente userClient;
-    private final HotelierServerHotelManager hotelManager;
-    private final HotelierServerUserManager userManager;
-    private final HotelierServerReviewManager reviewManager;
-    private final LoginHandlerUtente loginHandler;
+    private Utente userClient; // L'utente attualmente loggato
+    private final HotelierServerHotelManager hotelManager; // Gestore degli hotel
+    private final HotelierServerUserManager userManager; // Gestore degli utenti
+    private final HotelierServerReviewManager reviewManager; // Gestore delle recensioni
+    private final LoginHandlerUtente loginHandler; // Gestore delle sessioni di login
 
+    /**
+     * Costruttore della classe che inizializza i vari gestori per la gestione degli hotel,
+     * degli utenti, delle recensioni e delle sessioni di login.
+     */
     public HotelierServerMessageManager(){
         hotelManager = HotelierServerHotelManager.getInstance();
         userManager = HotelierServerUserManager.getInstance();
@@ -24,10 +34,16 @@ public class HotelierServerMessageManager {
         loginHandler = LoginHandlerUtente.getInstance();
     }
 
-    // restituisce pacchetto di risposta in base al pacchetto passato come paramentro
+    /**
+     * Gestisce il pacchetto di richiesta ricevuto, eseguendo operazioni specifiche in base
+     * al tipo di pacchetto e restituendo la risposta appropriata.
+     *
+     * @param packet Il pacchetto di richiesta da gestire.
+     * @return Il pacchetto di risposta da inviare al client.
+     */
     public Request_ResponseMessage handlePacket(Request_ResponseMessage packet) {
 
-        // filtro rispetto a instanza del pacchetto passato
+        // Gestione del pacchetto in base al tipo specifico
         return switch (packet) {
             case loginMessageRequest loginPacket -> handleLoginPacket((loginMessageRequest) packet);
             case logoutMessageRequest logoutPacket -> handleLogoutPacket((logoutMessageRequest) packet);
@@ -39,195 +55,224 @@ public class HotelierServerMessageManager {
         };
     }
 
+    /**
+     * Crea un pacchetto di risposta di errore con il messaggio passato.
+     *
+     * @param message Il messaggio di errore da includere nella risposta.
+     * @return Il pacchetto di risposta di errore.
+     */
     private errorResponseMessage packetErrorResponse(String message) {
 
+        // Restituisce un pacchetto di risposta con il messaggio di errore fornito
         errorResponseMessage errorResponse = new errorResponseMessage("[ERRORE] " + message);
         return errorResponse;
     }
 
-    // restitusce pacchetto di risposta login in caso di successo, pacchetto di errore in caso di fallimento
+    /**
+     * Gestisce la richiesta di login. Se il login ha successo, restituisce una risposta di successo,
+     * altrimenti una risposta di errore.
+     *
+     * @param packet Il pacchetto di richiesta di login.
+     * @return Il pacchetto di risposta con il risultato del login.
+     */
     private Request_ResponseMessage handleLoginPacket(loginMessageRequest packet) {
 
-        // ottengo username e password dal pacchetto
+        // Estrae username e password dal pacchetto di richiesta
         var username = packet.getUsername();
         var password = packet.getPassword();
 
-        // controllo se utente ha già effettuato il login
+        // Verifica se l'utente è già loggato
         if (userClient != null) {
-            // restituisco un pacchetto di errore in cui chiedo di fare il logout per effetter un nuovo login
+            // Se l'utente è già loggato, restituisce un errore
             return packetErrorResponse("Login già effettuato per utente " + userClient.getUsername() + "! Eseguire logout per effetturare un nuovo login");
         }
 
-        // controllo se esiste utente avente username passato
+        // Verifica che l'utente esista nel sistema
         if(userManager.getUserByName(username) == null) {
-            // restituisco un pacchetto di errore in cui chiedo di effettuare la registrazione
+            // Se l'utente non esiste, restituisce un errore
             return packetErrorResponse("Utente non esiste, si prega di effettuare la registrazione!");
         }
-        // recupero utente avente username e password passati
+
+        // Autenticazione dell'utente con username e password
         var user = userManager.Authentication(username, password);
-        // controllo che la password passata sia corretta
+        // Se la password è errata, restituisce un errore
         if (user == null) {
-            // restituisco un pacchetto di errore in cui notfico password errata
             return packetErrorResponse("Password errata!");
         }
 
-        // controllo se è già attiva un sessione di login per user su un altro client
+        // Verifica che l'utente non sia già loggato su un altro client
         if (loginHandler.userIsLogged(user)) {
-
-            // restituisco un pacchetto di errore in cui notifico sessione già attiva per utente user su un altro client
             return packetErrorResponse("Sessione già attiva per utente " + user.getUsername() + " su un altro client");
         }
-        // utente tovato e login non ancora effettuata
-        // assegno a userClient utente trovato per memorizzarne il login senza dover tutte le volte passare dal loginHandler
+
+        // Se l'autenticazione ha successo, registra l'utente come loggato
         userClient = user;
-        // aggiungo userClient alla lista di utenti loggati
         loginHandler.addLoggedUser(userClient);
 
-        // restituisco un pacchetto di risposta in cui notifico il login avvenuto con successo
+        // Restituisce una risposta di successo per il login
         loginResponseMessage packetLoginResponse = new loginResponseMessage("Login effettuato correttamente!");
         return packetLoginResponse;
-
     }
 
-    // restitusce pacchetto di risposta logout in caso di successo, pacchetto di errore in caso di fallimento
+    /**
+     * Gestisce la richiesta di logout. Se il logout ha successo, restituisce una risposta di successo,
+     * altrimenti una risposta di errore.
+     *
+     * @param packet Il pacchetto di richiesta di logout.
+     * @return Il pacchetto di risposta con il risultato del logout.
+     */
     private Request_ResponseMessage handleLogoutPacket(logoutMessageRequest packet) {
 
-        // controllo se utente non ha effettuato il login
+        // Verifica se l'utente è loggato prima di eseguire il logout
         if (userClient == null) {
-            // restituisco un pacchetto di errore in cui chiedo di effettuare il login per poter effettuare il logout
             return packetErrorResponse("Utente non loggato. Effettua il login prima di eseguire il logout.");
         }
 
-        // utente loggato
-        // rimuovo utente alla lista di utenti loggati
+        // Rimuove l'utente dalla lista degli utenti loggati e resetta l'utente
         loginHandler.removeUser(userClient);
-        // Resetto userClient a null
         userClient = null;
-        // restituisco un pacchetto di risposta in cui notifico il logout avvenuto con successo
+
+        // Restituisce una risposta di successo per il logout
         logoutResponseMessage packetLogoutResponse = new logoutResponseMessage("Logout effettuato correttamente!");
         return packetLogoutResponse;
     }
 
-    // restitusce pacchetto di risposta hotel in caso di successo, pacchetto di errore in caso di fallimento
+    /**
+     * Gestisce la richiesta di ricerca di un hotel. Restituisce l'hotel trovato o un messaggio di errore se non trovato.
+     *
+     * @param packet Il pacchetto di richiesta per la ricerca di un hotel.
+     * @return Il pacchetto di risposta contenente l'hotel trovato o un errore.
+     */
     private Request_ResponseMessage handleHotelPacket(searchHotelMessageRequest packet) {
 
-        // ottengo nome e citta dell' hotel
+        // Estrae nome e città dell'hotel dal pacchetto
         var hotelName = packet.getHotelName();
         var city = packet.getCity();
-        // ottengo hotel avente nome e città passati
+
+        // Cerca l'hotel con il nome e la città specificati
         var hotel = hotelManager.getHotelByNameAndCity(hotelName, city);
-        // hotel non trovato
         if (hotel == null) {
-            // restituisco un pacchetto di errore in cui notifico che l' hotel non esiste
+            // Se l'hotel non esiste, restituisce un errore
             return packetErrorResponse("Hotel non trovato.");
         }
 
-        //hotel trovato
-        // restituisco un pacchetto di risposta contentente hotel richiesto
+        // Se l'hotel è trovato, restituisce il pacchetto di risposta con i dettagli dell'hotel
         searchHotelResponseMessage packetHotelResponse = new searchHotelResponseMessage(hotel);
         return packetHotelResponse;
     }
 
-    // restitusce pacchetto di risposta hotelList in caso di successo, pacchetto di errore in caso di fallimento
+    /**
+     * Gestisce la richiesta di ricerca di tutti gli hotel in una città. Restituisce la lista degli hotel o un errore se nessun hotel è trovato.
+     *
+     * @param packet Il pacchetto di richiesta per la ricerca di tutti gli hotel in una città.
+     * @return Il pacchetto di risposta con la lista degli hotel o un errore.
+     */
     private Request_ResponseMessage handleHotelListPacket(searchAllHotelsMessage packet) {
 
-        // ottengo città degli hotel
+        // Estrae la città degli hotel dal pacchetto
         var city = packet.getCity();
-        // ottengo lista di hotel aventi città passata
+
+        // Ottiene la lista degli hotel nella città specificata
         var hotels = hotelManager.getHotelsByCity(city);
-        // nessun hotel trovato
         if (hotels.isEmpty()) {
-            // restituisco un pacchetto di errore in cui notifico che non esiste nessun hotel per quella città
+            // Se nessun hotel è trovato, restituisce un errore
             return packetErrorResponse("Nessun hotel trovato.");
         }
-        // hotel trovati
-        // ordino lista di hotel in modo crescente rispetto al rank locale
+
+        // Ordina la lista degli hotel in base al ranking locale
         Collections.sort(hotels, Comparator.comparingInt(Hotel::getLocalRank));
-        // restituisco un pacchetto di risposta contentente la lista di hotel ordinata
+
+        // Restituisce la lista di hotel ordinata
         searchAllHotelsResponseMessage packetHotelListResponse = new searchAllHotelsResponseMessage(hotels);
         return packetHotelListResponse;
     }
 
-    // restitusce pacchetto di risposta review in caso di successo, pacchetto di errore in caso di fallimento
+    /**
+     * Gestisce la richiesta di inserimento di una recensione. Se la recensione è valida, aggiorna i dati dell'hotel
+     * e dell'utente, altrimenti restituisce un errore.
+     *
+     * @param packet Il pacchetto contenente i dettagli della recensione.
+     * @return Il pacchetto di risposta con il risultato dell'inserimento della recensione.
+     */
     private Request_ResponseMessage handleReviewPacket(insertReviewRequestMessage packet) {
 
-        // controllo se utente non ha effettuato il login
+        // Verifica che l'utente sia loggato prima di inserire una recensione
         if (userClient == null) {
-            // restituisco un pacchetto di errore in cui chiedo di effettuare il login per inserire una recensione
             return packetErrorResponse("Utente non loggato. Effettua il login per inserire una recensione.");
         }
 
-        // utente loggato
-        // ottengo nome hotel, citta , rate e rating dell' hotel
+        // Estrae i dettagli della recensione dal pacchetto
         var hotelName = packet.getHotelName();
         var city = packet.getCity();
         var rate = packet.getRate();
         var rating = packet.getRatings();
 
-        // ottengo hotel avente nome e città passati
+        // Cerca l'hotel specificato
         var hotel = hotelManager.getHotelByNameAndCity(hotelName, city);
-        // hotel non trovato
         if (hotel == null) {
-            // restituisco un pacchetto di errore in cui notifico che l' hotel non esiste e quindi la recensione non è stata registrata
-            return packetErrorResponse("Recensione non registata. Hotel non trovato");
+            return packetErrorResponse("Recensione non registrata. Hotel non trovato");
         }
 
-        // hotel trovato
-        // creo una nuova recensione avente parametri passati
+        // Crea una nuova recensione
         var review = new Recensioni(userClient.getUsername(), hotel.getId(), rate, rating);
-        // aggiungo la recensione alla lista di recensioni del registro
+        // Aggiunge la recensione e la persiste
         reviewManager.addReview(review);
-        // peristo la lista delle recensione del registro sul disco
         reviewManager.serialize();
-        // incremento il numero di recensioni effettuate dall' utente userClient di 1
+
+        // Incrementa il numero di recensioni dell'utente e aggiorna il suo badge
         userClient.incrementReviewCount();
-        // controllo se è stato raggiunto un nuovo livello di esperienza e in caso setto il badge di utente userClient di conseguenza
         userClient.updateBadge();
-        // peristo la lista degli utenti del registro sul disco
         userManager.serialize();
-        // calcolo il nuovo rate medio
+
+        // Aggiorna il punteggio medio dell'hotel
         updateHotelRate(hotel, review);
-        // calcolo i nuovi punteggi medi: cleaning, position, servicese quality dell' hotel e li aggiorni
         updateHotelRating(hotel, review);
-        // incremento il numero di recensioni relative all' hotel di 1
+
+        // Incrementa il numero di recensioni per l'hotel
         hotel.incrementReviews();
-        // Aggiorni il rate medio dell' hotel
-        // peristo la lista degli hotel del registro sul disco
         hotelManager.serialize();
 
-        // restituisco un pacchetto di risposta in cui notifico la registrazione della recensione avvenuto con successo
+        // Restituisce una risposta di successo per la recensione
         insertReviewResponseMessage packetReviewResponse = new insertReviewResponseMessage("Recensione registrata con successo.");
         return packetReviewResponse;
     }
 
-    // restitusce pacchetto di risposta badge in caso di successo, pacchetto di errore in caso di fallimento
+    /**
+     * Gestisce la richiesta per ottenere il badge dell'utente. Se l'utente è loggato, restituisce il suo badge.
+     *
+     * @param packet Il pacchetto di richiesta per ottenere il badge dell'utente.
+     * @return Il pacchetto di risposta con il badge dell'utente.
+     */
     private Request_ResponseMessage handleBadgePacket(badgeLevelMessageRequest packet) {
 
-        // controllo se utente non ha effettuato il login
+        // Verifica che l'utente sia loggato prima di restituire il badge
         if (userClient == null) {
-            // restituisco un pacchetto di errore in cui chiedo di effettuare il login per richieder il badge
             return packetErrorResponse("Utente non loggato. Effettua il login per richiedere il badge.");
         }
-        // utente loggato
-        // restituisco un pacchetto di risposta contentente badge dell' utente
+
+        // Restituisce il badge dell'utente loggato
         badgeLevelMessageResponse packetBadgeResponse = new badgeLevelMessageResponse(userClient.getBadgeLevel());
         return packetBadgeResponse;
     }
 
-    // Metodo per gestire la disconnessione del client
+    /**
+     * Gestisce la disconnessione del client, rimuovendo l'utente dalla lista degli utenti loggati.
+     */
     public void handleClientDisconnect() {
 
-        // controllo se userClient era loggato
+        // Verifica se l'utente era loggato prima di procedere
         if (userClient != null) {
-
-            // rimuovo userClient dalla lista di utenti loggati
             loginHandler.removeUser(userClient);
-            // resetto userClient a null
             userClient = null;
         }
     }
 
-    // calcola il nuovo rate medio di hotel e lo aggiorna
+    /**
+     * Calcola il nuovo punteggio medio di una recensione per l'hotel e lo aggiorna.
+     *
+     * @param hotel L'hotel da aggiornare.
+     * @param review La recensione da considerare per il calcolo del nuovo punteggio medio.
+     */
     private void updateHotelRate(Hotel hotel, Recensioni review) {
 
         var reviewCount = hotel.getReviewCount();
@@ -235,7 +280,12 @@ public class HotelierServerMessageManager {
         hotel.setRate(avgRate);
     }
 
-    // calcola i nuovi punteggi medi di hotel e li aggiorna
+    /**
+     * Calcola i nuovi punteggi medi di un hotel in base alle recensioni e aggiorna i valori.
+     *
+     * @param hotel L'hotel da aggiornare.
+     * @param review La recensione da considerare per il calcolo dei nuovi punteggi medi.
+     */
     private void updateHotelRating(Hotel hotel, Recensioni review) {
 
         var hotelRating = hotel.getRatings();
@@ -252,13 +302,18 @@ public class HotelierServerMessageManager {
         hotelRating.setQuality(avgQuality);
     }
 
-    // restituisce nuovo valore medio arrotondato a una cifra decimale tramite ultimo valore medio, nuovo valore e numero di valori
+    /**
+     * Calcola il nuovo punteggio medio dato il numero di recensioni, il punteggio attuale e il nuovo valore da aggiungere.
+     *
+     * @param reviewCount Il numero totale di recensioni.
+     * @param avg Il punteggio medio attuale.
+     * @param value Il nuovo punteggio da aggiungere.
+     * @return Il nuovo punteggio medio, arrotondato a una cifra decimale.
+     */
     private float calculateNewAvg(int reviewCount, float avg, float value) {
 
         var totalScore = avg * reviewCount;
         var newAvg = (totalScore + value) / (reviewCount + 1);
         return Math.round(newAvg * 10.0f) / 10.0f;
     }
-
-
 }

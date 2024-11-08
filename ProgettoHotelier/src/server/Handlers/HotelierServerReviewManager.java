@@ -1,4 +1,4 @@
-package server;
+package server.Handlers;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,18 +15,22 @@ import utils.JsonUtils;
 
 import static server.config.ServerJsonSettings.REVIEWS_PATH_JSON;
 
-
+/**
+ * La classe HotelierServerReviewManager gestisce le recensioni all'interno del sistema Hotelier.
+ * Fornisce metodi per aggiungere recensioni, recuperare recensioni per un utente o per un hotel,
+ * e serializzare/deserializzare le recensioni per la persistenza su disco tramite JSON.
+ * Utilizza una lista sincronizzata per garantire l'accesso concorrente sicuro alle recensioni.
+ */
 public class HotelierServerReviewManager {
 
-    /**
-     * La classe HotelierServerReviewMAnager gestisce le recensioni all' interno di Hotelier.
-     * Fornisce metodi per aggiungere recensioni, recuperare recensioni di un utente specifico e recensioni di un hotel specifico.
-     * Utilizza una lista sincronizzata per garantire l'accesso concorrente alle recensioni e offre funzionalità per la serializzazione
-     * e deserializzazione delle recensioni tramite JSON per la persistenza su disco.
-     */
-
+    // Istanza unica della classe (Singleton)
     private static HotelierServerReviewManager instance = null;
 
+    /**
+     * Metodo per ottenere l'istanza della classe (Singleton).
+     *
+     * @return L'istanza unica di HotelierServerReviewManager.
+     */
     public static HotelierServerReviewManager getInstance() {
         if (instance == null) {
             instance = new HotelierServerReviewManager();
@@ -34,71 +38,78 @@ public class HotelierServerReviewManager {
         return instance;
     }
 
-    // lista di recensioni del registro
+    // Lista di recensioni del sistema
     private List<Recensioni> reviews;
 
+    /**
+     * Costruttore della classe, inizializza la lista delle recensioni.
+     */
     private HotelierServerReviewManager() {
         reviews = new ArrayList<>();
     }
 
-    // aggiunge la recensione alla lista di recensioni del registro
+    /**
+     * Aggiunge una recensione alla lista delle recensioni.
+     * La lista è sincronizzata per garantire che le operazioni di scrittura siano sicure in un contesto multithreading.
+     *
+     * @param review La recensione da aggiungere alla lista.
+     */
     public void addReview(Recensioni review) {
-        // acquisisco la lock sulla lista delle recensioni
         synchronized (reviews) {
-            // aggiungo la recensione alla lista
             reviews.add(review);
         }
     }
 
-    // restituisce la lista di recensioni effettuate da un utente
+    /**
+     * Restituisce tutte le recensioni effettuate da un utente specifico.
+     * Utilizza un ciclo per scorrere tutte le recensioni e confrontare l'username dell'utente.
+     * La lista risultante è sincronizzata per evitare problemi di accesso concorrente.
+     *
+     * @param user L'utente di cui recuperare le recensioni.
+     * @return Una lista di recensioni effettuate dall'utente.
+     */
     public List<Recensioni> getUserReviews(Utente user) {
-
-        // creo una nuova lista di recensioni
         List<Recensioni> userReviews = new LinkedList<>();
-        // acquisisco la lock sulla lista delle recensioni
         synchronized (reviews) {
-            // itero la lista di recensioni del registro
             for (Recensioni review : reviews) {
-                // controllo che username dell' utente passato corrisponda a quello presente nella recensione (ignoreCase)
+                // Confronta l'username in modo case insensitive
                 if (StringUtils.equalsIgnoreCase(user.getUsername(), review.getUsername())) {
-                    // aggiungo la recensione alla lista
                     userReviews.add(review);
                 }
             }
         }
-        // restituisco la lista di recensioni
         return userReviews;
     }
 
-    // restituisce la lista di recensioni relative ad hotel passato
+    /**
+     * Restituisce tutte le recensioni associate a un hotel specifico.
+     * La lista delle recensioni per un hotel viene filtrata per id dell'hotel e restituita.
+     *
+     * @param hotel L'hotel di cui recuperare le recensioni.
+     * @return Una lista di recensioni per l'hotel specificato.
+     */
     public List<Recensioni> getHotelReviews(Hotel hotel) {
-
-        // creo una nuova lista di recensioni
         List<Recensioni> hotelReviews = new LinkedList<>();
-        // acquisisco la lock sulla lista delle recensioni
         synchronized (reviews) {
-            // itero la lista di recensioni del registro
             for (Recensioni review : reviews) {
-                // controllo che id hotel passato corrisponda a quello presente nella recensione
+                // Confronta l'ID dell'hotel nella recensione con l'ID dell'hotel passato
                 if (review.gethotelID() == hotel.getId()) {
-                    // aggiungo la recensione alla lista
                     hotelReviews.add(review);
                 }
             }
         }
-        // restituisco la lista di recensioni
         return hotelReviews;
     }
 
-    // persiste la lista delle recensioni del registro sul disco
+    /**
+     * Serializza la lista delle recensioni in formato JSON e la scrive su un file per la persistenza.
+     * Se si verifica un errore di scrittura, viene stampato lo stack trace.
+     */
     public void serialize() {
-
         try {
-            // acquisisco la lock sulla lista delle recensioni
             synchronized (reviews) {
-                // serializzo la lista delle recensione in Json
                 String reviewsJson = JsonUtils.serialize(reviews);
-                // scrivo la lista seriliazzata sul file al path REVIEWS_PATH_JSON
+                // Scrive le recensioni serializzate su disco
                 JsonUtils.writeFile(reviewsJson, new File(REVIEWS_PATH_JSON));
             }
         } catch (IOException exception) {
@@ -106,22 +117,19 @@ public class HotelierServerReviewManager {
         }
     }
 
-    // deserializza la lista delle recensioni da disco e li aggiunge alla lista delle recensioni del registro
+    /**
+     * Deserializza le recensioni da un file JSON e le aggiunge alla lista delle recensioni nel sistema.
+     * In caso di errore nella lettura o deserializzazione, viene stampato lo stack trace.
+     */
     public void deserialize() {
-
         try {
-            // acquisisco la lock sulla lista delle recensioni
             synchronized (reviews) {
-                // ottengo il file contenente la lista delle recensioni
                 var reviewFile = new File(REVIEWS_PATH_JSON);
-                // leggo la lista delle recensioni serializzata in Json
                 var reviewsJSON = JsonUtils.readFile(reviewFile);
-                // deserializzo la lista delle recensioni
                 var deserializedReviews = Arrays.asList(JsonUtils.deserialize(reviewsJSON, Recensioni[].class));
-                // aggiungo la lista delle recensioni deserializzata alla lista delle recensioni del registro
+                // Aggiunge le recensioni deserializzate alla lista
                 reviews.addAll(deserializedReviews);
             }
-
         } catch (IOException exception) {
             exception.printStackTrace();
         }

@@ -1,6 +1,8 @@
 package server;
 
 import RMI.RMIServer.HotelierServerRMI;
+import server.Handlers.HotelierServerReviewManager;
+import server.Handlers.HotelierServerUserManager;
 import server.config.ConfigManager;
 import utils.JsonUtils;
 
@@ -16,10 +18,13 @@ public class HotelierServerMain {
         try {
             // inizializzo il server
             initialize();
+            System.out.println("[OK] HotelierServer inizializzato...");
+
+
             // avvio il server
             startServer();
             // stampo server avviato con successo e in esecuzione
-            System.out.println("[OK] HotelierServer in esecuzione ...");
+            System.out.println("[OK] Avvio completato: HotelierServer in esecuzione e in attesa dei comandi dal client...");
 
         } catch (Exception e) {
 
@@ -54,17 +59,26 @@ public class HotelierServerMain {
             System.out.println("[ERRORE] Terminazione Server ...");
             throw new IOException();
         }
+        else {
+            System.out.println("[SUCCESS] Caricamento file Hotel.json completato");
+        }
 
         // se il file json users non esiste lo creo inzializzandola con una lista vuota
         if (!usersFile.exists()) {
             usersFile.createNewFile();
             JsonUtils.writeFile("[]", usersFile);
         }
+        else {
+            System.out.println("[SUCCESS] Caricamento file User.json completato");
+        }
 
         // se il file json reviews non esiste lo creo inzializzandola con una lista vuota
         if (!reviewsFile.exists()) {
             reviewsFile.createNewFile();
             JsonUtils.writeFile("[]", reviewsFile);
+        }
+        else {
+            System.out.println("[SUCCESS] Caricamento file Review.json completato");
         }
 
         // se il file json reviews non esiste lo creo inzializzandola con il file config server di default
@@ -111,7 +125,7 @@ public class HotelierServerMain {
         var hotelierServerMulticast = new HotelierServerMulticast(serverConfig.getMcastAddress(), serverConfig.getMcastPort());
 
         // inizializzo serverRanking passadongli rankingInterval (secondi che intercorrono tra le sue esecuzioni), serverRmi
-        // e multicasT
+        // e multicast
         new RankingAlgorithm(serverConfig.getRankingInterval(), hotelierServerRmi, hotelierServerMulticast);
     }
 
