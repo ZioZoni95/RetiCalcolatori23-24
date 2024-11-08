@@ -138,7 +138,8 @@ public class TCPCommandHandlerClient {
         int services = Integer.parseInt(c_args[5]);
         int quality = Integer.parseInt(c_args[6]);
         HotelRate rating = new HotelRate(cleaning,position,services,quality);
-        return new insertReviewRequestMessage(hotelName,city,rate,rating);
+        insertReviewRequestMessage review_req_packet = new insertReviewRequestMessage(hotelName,city,rate,rating);
+        return review_req_packet;
     }
 
     private Request_ResponseMessage createPacketBadgeLevel() {

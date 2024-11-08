@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Utente {
     @JsonProperty("username")
     private String username;
-    @JsonProperty("password")
+   @JsonProperty("password")
     private String password;
     @JsonProperty("reviewCount")
     private int reviewCount; // Numero di recensioni fatte dall'utente
@@ -36,7 +36,7 @@ public class Utente {
     public synchronized void setReviewCount(int reviewCount) { this.reviewCount = reviewCount; }
 
     // Incrementa il numero di recensioni e aggiorna il distintivo
-    public void incrementReviewCount() {
+    public synchronized void incrementReviewCount() {
         this.reviewCount++;
     }
 

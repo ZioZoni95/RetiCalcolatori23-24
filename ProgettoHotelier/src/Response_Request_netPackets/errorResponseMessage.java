@@ -1,15 +1,16 @@
 package Response_Request_netPackets;
 
 public class errorResponseMessage extends Request_ResponseMessage {
-    private String errorMessage;
+  /*  @JsonIgnoreProperties(ignoreUnknown = true)*/
+    private String errorMessageResponse;
 
     public errorResponseMessage(){}
 
-    public errorResponseMessage(String errorMessage){
-        this.errorMessage = errorMessage;
+    public errorResponseMessage(String errorMessageResponse){
+        this.errorMessageResponse = errorMessageResponse;
     }
 
     public String getErrorMessageResponse(){
-        return errorMessage;
+        return errorMessageResponse;
     }
 }

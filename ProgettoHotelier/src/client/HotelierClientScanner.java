@@ -27,7 +27,7 @@ public class HotelierClientScanner implements Runnable {
     @Override
     public void run(){
         try(Scanner scanner = new Scanner(System.in)){
-            System.out.println("Hotelier, i migliori hotel a portata di click! Si prega di digitare exit per uscire o help per il meù dei comandi\n");
+            System.out.println("Benvenuto su Hotelier, i migliori hotel a portata di click! Si prega di digitare exit per uscire o help per il meù dei comandi\n");
 
             while (!Thread.interrupted()){
                 System.out.print("Inserisci comando: ");

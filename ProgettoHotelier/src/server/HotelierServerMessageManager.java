@@ -184,7 +184,7 @@ public class HotelierServerMessageManager {
         // controllo se è stato raggiunto un nuovo livello di esperienza e in caso setto il badge di utente userClient di conseguenza
         userClient.updateBadge();
         // peristo la lista degli utenti del registro sul disco
-        reviewManager.serialize();
+        userManager.serialize();
         // calcolo il nuovo rate medio
         updateHotelRate(hotel, review);
         // calcolo i nuovi punteggi medi: cleaning, position, servicese quality dell' hotel e li aggiorni

@@ -4,15 +4,15 @@
   "password" : "pppfpdfp",
   "reviewCount" : 0
 }, {
-  "badgeLevel" : "Recensore",
+  "badgeLevel" : "Contribuente_Esperto",
   "username" : "ciao",
   "password" : "ciao",
-  "reviewCount" : 0
+  "reviewCount" : 4
 }, {
-  "badgeLevel" : "Recensore",
+  "badgeLevel" : "Recensore_Esperto",
   "username" : "bau",
   "password" : "chino",
-  "reviewCount" : 0
+  "reviewCount" : 2
 }, {
   "badgeLevel" : "Recensore",
   "username" : "chiara",
@@ -22,5 +22,15 @@
   "badgeLevel" : "Recensore",
   "username" : "antonino",
   "password" : "ciao",
+  "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "prova",
+  "password" : "prova",
+  "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "prova2",
+  "password" : "prova",
   "reviewCount" : 0
 } ]
