@@ -1,0 +1,144 @@
+[ {
+  "username" : "ciao",
+  "hotelID" : 1,
+  "rate" : 2,
+  "rating" : {
+    "cleaning" : 3.0,
+    "position" : 4.0,
+    "services" : 1.0,
+    "quality" : 2.0
+  },
+  "timestamp" : "2024-11-08T10:11:39.951748409"
+}, {
+  "username" : "ciao",
+  "hotelID" : 3,
+  "rate" : 5,
+  "rating" : {
+    "cleaning" : 3.0,
+    "position" : 4.0,
+    "services" : 2.0,
+    "quality" : 1.0
+  },
+  "timestamp" : "2024-11-08T10:13:00.757874155"
+}, {
+  "username" : "ciao",
+  "hotelID" : 2,
+  "rate" : 5,
+  "rating" : {
+    "cleaning" : 5.0,
+    "position" : 5.0,
+    "services" : 5.0,
+    "quality" : 5.0
+  },
+  "timestamp" : "2024-11-08T10:16:49.294424120"
+}, {
+  "username" : "ciao",
+  "hotelID" : 5,
+  "rate" : 3,
+  "rating" : {
+    "cleaning" : 2.0,
+    "position" : 1.0,
+    "services" : 2.0,
+    "quality" : 2.0
+  },
+  "timestamp" : "2024-11-08T10:40:37.112593478"
+}, {
+  "username" : "bau",
+  "hotelID" : 14,
+  "rate" : 3,
+  "rating" : {
+    "cleaning" : 3.0,
+    "position" : 3.0,
+    "services" : 3.0,
+    "quality" : 2.0
+  },
+  "timestamp" : "2024-11-08T11:21:59.891321644"
+}, {
+  "username" : "bau",
+  "hotelID" : 17,
+  "rate" : 3,
+  "rating" : {
+    "cleaning" : 2.0,
+    "position" : 1.0,
+    "services" : 2.0,
+    "quality" : 2.0
+  },
+  "timestamp" : "2024-11-08T11:41:36.456801119"
+}, {
+  "username" : "ciao",
+  "hotelID" : 115,
+  "rate" : 5,
+  "rating" : {
+    "cleaning" : 5.0,
+    "position" : 5.0,
+    "services" : 5.0,
+    "quality" : 5.0
+  },
+  "timestamp" : "2024-11-08T11:55:16.740972441"
+}, {
+  "username" : "ciao",
+  "hotelID" : 181,
+  "rate" : 5,
+  "rating" : {
+    "cleaning" : 5.0,
+    "position" : 5.0,
+    "services" : 5.0,
+    "quality" : 5.0
+  },
+  "timestamp" : "2024-11-08T12:19:52.938240229"
+}, {
+  "username" : "ciao",
+  "hotelID" : 183,
+  "rate" : 5,
+  "rating" : {
+    "cleaning" : 5.0,
+    "position" : 5.0,
+    "services" : 5.0,
+    "quality" : 5.0
+  },
+  "timestamp" : "2024-11-08T12:21:08.889677481"
+}, {
+  "username" : "ciao",
+  "hotelID" : 183,
+  "rate" : 2,
+  "rating" : {
+    "cleaning" : 2.0,
+    "position" : 2.0,
+    "services" : 2.0,
+    "quality" : 2.0
+  },
+  "timestamp" : "2024-11-08T12:22:17.644603086"
+}, {
+  "username" : "ciao",
+  "hotelID" : 33,
+  "rate" : 2,
+  "rating" : {
+    "cleaning" : 2.0,
+    "position" : 3.0,
+    "services" : 4.0,
+    "quality" : 4.0
+  },
+  "timestamp" : "2024-11-08T12:26:08.565501905"
+}, {
+  "username" : "ciao",
+  "hotelID" : 146,
+  "rate" : 2,
+  "rating" : {
+    "cleaning" : 2.0,
+    "position" : 3.0,
+    "services" : 3.0,
+    "quality" : 3.0
+  },
+  "timestamp" : "2024-11-08T12:28:38.165138727"
+}, {
+  "username" : "final",
+  "hotelID" : 60,
+  "rate" : 2,
+  "rating" : {
+    "cleaning" : 3.0,
+    "position" : 4.0,
+    "services" : 5.0,
+    "quality" : 3.0
+  },
+  "timestamp" : "2024-11-08T12:52:15.686664481"
+} ]

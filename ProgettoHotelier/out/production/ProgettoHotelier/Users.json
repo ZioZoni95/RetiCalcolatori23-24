@@ -1,0 +1,41 @@
+[ {
+  "badgeLevel" : "Recensore",
+  "username" : "pfof",
+  "password" : "pppfpdfp",
+  "reviewCount" : 0
+}, {
+  "badgeLevel" : "Super_Contribuente",
+  "username" : "ciao",
+  "password" : "ciao",
+  "reviewCount" : 10
+}, {
+  "badgeLevel" : "Recensore_Esperto",
+  "username" : "bau",
+  "password" : "chino",
+  "reviewCount" : 2
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "chiara",
+  "password" : "klops",
+  "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "antonino",
+  "password" : "ciao",
+  "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "prova",
+  "password" : "prova",
+  "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "prova2",
+  "password" : "prova",
+  "reviewCount" : 0
+}, {
+  "badgeLevel" : "Recensore",
+  "username" : "final",
+  "password" : "final",
+  "reviewCount" : 1
+} ]
