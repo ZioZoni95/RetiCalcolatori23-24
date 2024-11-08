@@ -1,4 +1,4 @@
-package HandlerMessages;
+package Response_Request_netPackets;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 /**

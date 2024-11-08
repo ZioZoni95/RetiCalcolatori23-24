@@ -1,4 +1,4 @@
-package HandlerMessages;
+package Response_Request_netPackets;
 
 public class logoutResponseMessage extends Request_ResponseMessage {
     private String logoutResponse;

@@ -1,6 +1,6 @@
 package server;
 
-import HandlerMessages.Request_ResponseMessage;
+import Response_Request_netPackets.Request_ResponseMessage;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

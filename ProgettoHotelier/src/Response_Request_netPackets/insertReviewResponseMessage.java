@@ -1,4 +1,4 @@
-package HandlerMessages;
+package Response_Request_netPackets;
 
 public class insertReviewResponseMessage extends Request_ResponseMessage {
 

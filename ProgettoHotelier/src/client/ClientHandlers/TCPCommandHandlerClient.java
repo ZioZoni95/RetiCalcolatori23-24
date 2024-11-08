@@ -1,7 +1,7 @@
 package client.ClientHandlers;
-import HandlerMessages.*;
-import HandlerMessages.Request_ResponseMessage;
-import HandlerMessages.loginMessageRequest;
+import Response_Request_netPackets.*;
+import Response_Request_netPackets.Request_ResponseMessage;
+import Response_Request_netPackets.loginMessageRequest;
 import client.HotelierCommands_Client;
 import client.config.ClientConfigManager;
 import com.fasterxml.jackson.databind.ObjectMapper;

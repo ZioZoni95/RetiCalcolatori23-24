@@ -1,6 +1,6 @@
 package server;
-import HandlerMessages.*;
-import HandlerMessages.Request_ResponseMessage;
+import Response_Request_netPackets.*;
+import Response_Request_netPackets.Request_ResponseMessage;
 import Handlers.LoginHandlerUtente;
 import model.Hotel;
 import model.Recensioni;
