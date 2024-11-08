@@ -1,1 +1,12 @@
-[]
+[ {
+  "username" : "ciao",
+  "hotelID" : 167,
+  "rate" : 2,
+  "rating" : {
+    "cleaning" : 2.0,
+    "position" : 2.0,
+    "services" : 2.0,
+    "quality" : 2.0
+  },
+  "timestamp" : "2024-11-08T00:34:40.355624479"
+} ]

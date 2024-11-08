@@ -2,7 +2,9 @@ package HandlerMessages;
 
 public class insertReviewResponseMessage extends Request_ResponseMessage {
 
-    private final String responseMessage;
+    private String responseMessage;
+
+    public insertReviewResponseMessage(){}
 
     public insertReviewResponseMessage(String responseMessage){
         this.responseMessage = responseMessage;

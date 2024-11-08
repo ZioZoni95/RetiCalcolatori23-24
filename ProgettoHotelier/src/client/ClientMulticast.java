@@ -8,6 +8,7 @@ import java.net.MulticastSocket;
 public class ClientMulticast implements Runnable {
     private MulticastSocket socket;
     private InetAddress group_addr;
+    private boolean isJoined = false;
 
     public ClientMulticast(String mcAddress, int mc_port){
         try {
@@ -27,8 +28,11 @@ public class ClientMulticast implements Runnable {
     // effettua la join del gruppo multicast
     public void joinGroup() {
         try {
-            socket.joinGroup(group_addr); // Join the multicast group
-        } catch (IOException e) {
+            if (!isJoined) {
+                socket.joinGroup(group_addr); // Join the multicast group
+                isJoined = true;
+            }
+        }catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -36,7 +40,10 @@ public class ClientMulticast implements Runnable {
     // effettua la leave dal gruppo multicast
     public void leaveGroup() {
         try {
-            socket.leaveGroup(group_addr); // Leave the multicast group
+            if (isJoined) {
+                socket.leaveGroup(group_addr);
+                isJoined = false; // Mark as not joined
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,10 +82,8 @@ public class ClientMulticast implements Runnable {
     public void close() {
 
         if (!socket.isClosed()) {
-
+            leaveGroup();
             socket.close();
-
         }
-
     }
 }

@@ -3,20 +3,22 @@ package HandlerMessages;
 import model.HotelRate;
 
 public class insertReviewRequestMessage extends Request_ResponseMessage {
-    private final String hotelname;
-    private final String city;
-    private final int rateScore;
-    private final HotelRate ratings;
+    private  String hotelName;
+    private  String city;
+    private  int rate;
+    private  HotelRate ratings;
 
-    public insertReviewRequestMessage(String hotelname, String city, int rateScore, HotelRate ratings){
-        this.hotelname = hotelname;
+    public insertReviewRequestMessage(){}
+
+    public insertReviewRequestMessage(String hotelName, String city, int rate, HotelRate ratings){
+        this.hotelName = hotelName;
         this.city = city;
-        this.rateScore = rateScore;
+        this.rate = rate;
         this.ratings = ratings;
     }
 
     public String getHotelName() {
-        return hotelname;
+        return hotelName;
     }
 
     public String getCity() {
@@ -24,7 +26,7 @@ public class insertReviewRequestMessage extends Request_ResponseMessage {
     }
 
     public int getRate() {
-        return rateScore;
+        return rate;
     }
 
     public HotelRate getRatings() {

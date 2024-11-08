@@ -1,8 +1,10 @@
 package HandlerMessages;
 
 public class searchHotelMessageRequest extends Request_ResponseMessage {
-    private final String hotelName;
+    private String hotelName;
     private String city;
+
+    public searchHotelMessageRequest(){}
 
     public searchHotelMessageRequest(String hotelName, String city){
         this.hotelName = hotelName;

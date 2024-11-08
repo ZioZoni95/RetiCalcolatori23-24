@@ -16,7 +16,7 @@ public class ClientCommandHandler {
         rmiCommHandler = new rmiClientCommandHandler(clientRMI);
     }
 
-    public String manageCommange(HotelierCommands_Client cmd) throws IOException{
+    public String manageCommand(HotelierCommands_Client cmd) throws IOException{
         return switch(cmd.getC_type()){
             case COMMAND_TCP -> tcpComm_Handler.TCPCommandHandler(cmd);
             case COMMAND_RMI -> rmiCommHandler.handleCommand(cmd);
@@ -27,8 +27,8 @@ public class ClientCommandHandler {
 
     private String handleLocalCMD(HotelierCommands_Client cmd){
         return switch (cmd.getName()){
-            case "aiuto" -> handleHelpCMD(cmd);
-            case "showLocalRanks" -> handleShowLocalRanks(cmd);
+            case "help" -> handleHelpCMD(cmd);
+            case "showlocalranks" -> handleShowLocalRanks(cmd);
             default -> null;
         };
     }

@@ -1,7 +1,9 @@
 package HandlerMessages;
 
 public class errorResponseMessage extends Request_ResponseMessage {
-    private final String errorMessage;
+    private String errorMessage;
+
+    public errorResponseMessage(){}
 
     public errorResponseMessage(String errorMessage){
         this.errorMessage = errorMessage;

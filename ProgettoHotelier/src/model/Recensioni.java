@@ -3,16 +3,18 @@ package model;
 import java.time.LocalDateTime;
 
 public class Recensioni {
-    private final String username;
-    private final int idHotel;
-    private final int rateScore;
-    private final HotelRate rating;
-    private final String timestamp;
+    private String username;
+    private int hotelID;
+    private int rate;
+    private HotelRate rating;
+    private String timestamp;
 
-    public Recensioni(String username, int idHotel, int rateScore, HotelRate rating){
+    public Recensioni(){}
+
+    public Recensioni(String username, int hotelID, int rate, HotelRate rating){
         this.username = username;
-        this.idHotel = idHotel;
-        this.rateScore = rateScore;
+        this.hotelID = hotelID;
+        this.rate = rate;
         this.rating = new HotelRate(rating);
 
         //ottendo la data e l'ora di quando è stata messa la recensione
@@ -24,11 +26,11 @@ public class Recensioni {
     }
 
     public int gethotelID() {
-        return idHotel;
+        return hotelID;
     }
 
     public int getRate() {
-        return rateScore;
+        return rate;
     }
 
     public HotelRate getRating() {
@@ -44,8 +46,8 @@ public class Recensioni {
         StringBuilder builder = new StringBuilder();
 
         builder.append("Username: ").append(username).append("\n");
-        builder.append("HotelID: ").append(idHotel).append("\n");
-        builder.append("Rate: ").append(rateScore).append("\n");
+        builder.append("HotelID: ").append(hotelID).append("\n");
+        builder.append("Rate: ").append(rate).append("\n");
         builder.append("Review: ").append(rating).append("\n");
         builder.append("Timestamp: ").append(timestamp);
 

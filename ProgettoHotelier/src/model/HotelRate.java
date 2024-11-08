@@ -17,10 +17,10 @@ public class HotelRate {
 
     //costruttore di copia
     public HotelRate(HotelRate rating){
-        this.cleaning = cleaning;
-        this.position = position;
-        this.services = services;
-        this.quality = quality;
+        this.cleaning = rating.cleaning;
+        this.position = rating.position;
+        this.services = rating.services;
+        this.quality = rating.quality;
     }
 
     //getters and setters
@@ -56,10 +56,10 @@ public class HotelRate {
     public String toString() {
         StringBuilder builder = new StringBuilder();
 
-        builder.append("Pulizia: ").append(cleaning).append("\n");
-        builder.append("Posizione: ").append(position).append("\n");
-        builder.append("Servizi: ").append(services).append("\n");
-        builder.append("Qualità: ").append(quality);
+        builder.append("cleaning: ").append(cleaning).append("\n");
+        builder.append("position: ").append(position).append("\n");
+        builder.append("services: ").append(services).append("\n");
+        builder.append("quality: ").append(quality);
 
         return builder.toString();
     }

@@ -112,7 +112,7 @@ public class HotelierServerMain {
 
         // inizializzo serverRanking passadongli rankingInterval (secondi che intercorrono tra le sue esecuzioni), serverRmi
         // e multicasT
-        //new RankingAlgorithm(serverConfig.getRankingInterval(), hotelierServerRmi, hotelierServerMulticast);
+        new RankingAlgorithm(serverConfig.getRankingInterval(), hotelierServerRmi, hotelierServerMulticast);
     }
 
 }

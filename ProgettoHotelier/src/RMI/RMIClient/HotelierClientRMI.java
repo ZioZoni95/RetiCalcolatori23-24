@@ -39,7 +39,7 @@ public class HotelierClientRMI {
 
     // restituisce la mappa dei local rank formattata per la stampa
     public String localRankMapToString() {
-        Map<String, List<Hotel>> localRankMap = client.getLocalRankMap();
+        var localRankMap = client.getLocalRankMap();
 
         StringBuilder sb = new StringBuilder();
         String separator = "--------------------------------------------------\n";

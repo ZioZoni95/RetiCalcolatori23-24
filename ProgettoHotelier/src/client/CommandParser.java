@@ -51,10 +51,10 @@ public class CommandParser {
                 break;
             case "logout":
                 if(c_args == null){
-                    return new HotelierCommands_Client(c_name,c_args, HotelierCommands_Client.commandTypes.COMMAND_RMI);
+                    return new HotelierCommands_Client(c_name,c_args, HotelierCommands_Client.commandTypes.COMMAND_TCP);
                 }
                 break;
-            case "searchHotel":
+            case "searchhotel":
                 if(c_args != null && c_args.length == 2) {
                     return new HotelierCommands_Client(c_name, c_args, HotelierCommands_Client.commandTypes.COMMAND_TCP);
                 }

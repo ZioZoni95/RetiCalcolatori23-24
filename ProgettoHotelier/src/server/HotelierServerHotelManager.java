@@ -63,7 +63,7 @@ public class HotelierServerHotelManager {
         synchronized (hotels) {
             copyHotels = new ArrayList<>(hotels);
         }
-            System.out.println("SONO NELLA SYNCRO!!");
+        //    System.out.println("SONO NELLA SYNCRO!!");
             // itero la lista di tutti gli hotel del registro
             for (Hotel hotel : copyHotels) {
                 // controllo se città hotel corrisponde a quella passato (ingnoreCase)

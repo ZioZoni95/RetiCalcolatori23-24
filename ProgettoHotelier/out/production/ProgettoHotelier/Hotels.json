@@ -2734,7 +2734,7 @@
   },
   "reviewCount" : 0,
   "rank" : 0.0,
-  "localRank" : 1
+  "localRank" : 2
 }, {
   "id" : 162,
   "name" : "Hotel Potenza 2",
@@ -2751,7 +2751,7 @@
   },
   "reviewCount" : 0,
   "rank" : 0.0,
-  "localRank" : 2
+  "localRank" : 3
 }, {
   "id" : 163,
   "name" : "Hotel Potenza 3",
@@ -2768,7 +2768,7 @@
   },
   "reviewCount" : 0,
   "rank" : 0.0,
-  "localRank" : 3
+  "localRank" : 4
 }, {
   "id" : 164,
   "name" : "Hotel Potenza 4",
@@ -2785,7 +2785,7 @@
   },
   "reviewCount" : 0,
   "rank" : 0.0,
-  "localRank" : 4
+  "localRank" : 5
 }, {
   "id" : 165,
   "name" : "Hotel Potenza 5",
@@ -2802,7 +2802,7 @@
   },
   "reviewCount" : 0,
   "rank" : 0.0,
-  "localRank" : 5
+  "localRank" : 6
 }, {
   "id" : 166,
   "name" : "Hotel Potenza 6",
@@ -2819,7 +2819,7 @@
   },
   "reviewCount" : 0,
   "rank" : 0.0,
-  "localRank" : 6
+  "localRank" : 7
 }, {
   "id" : 167,
   "name" : "Hotel Potenza 7",
@@ -2827,16 +2827,16 @@
   "city" : "Potenza",
   "phone" : "387-4671888",
   "services" : [ "Posto auto", "Paga in struttura", "TV in camera", "Palestra", "Frigo in camera", "Piscina", "Sauna" ],
-  "rate" : 0.0,
+  "rate" : 2.0,
   "ratings" : {
-    "cleaning" : 0.0,
-    "position" : 0.0,
-    "services" : 0.0,
-    "quality" : 0.0
+    "cleaning" : 0.7,
+    "position" : 0.7,
+    "services" : 0.7,
+    "quality" : 0.7
   },
-  "reviewCount" : 0,
-  "rank" : 0.0,
-  "localRank" : 7
+  "reviewCount" : 6,
+  "rank" : 2.690196080028514,
+  "localRank" : 1
 }, {
   "id" : 168,
   "name" : "Hotel Potenza 8",

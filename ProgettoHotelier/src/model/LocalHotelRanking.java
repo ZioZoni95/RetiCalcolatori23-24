@@ -5,8 +5,10 @@ import java.util.List;
 
 public class LocalHotelRanking {
 
-    private final String city;
+    private  String city;
     private List<Hotel> hotels;
+
+    public LocalHotelRanking(){}
 
     public LocalHotelRanking(String city) {
         this.city = city;

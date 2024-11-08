@@ -1,7 +1,9 @@
 package HandlerMessages;
 
 public class logoutResponseMessage extends Request_ResponseMessage {
-    private final String logoutResponse;
+    private String logoutResponse;
+
+    public logoutResponseMessage(){}
 
     public logoutResponseMessage(String logoutResponse){
         this.logoutResponse = logoutResponse;

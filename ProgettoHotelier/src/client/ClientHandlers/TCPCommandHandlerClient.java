@@ -56,10 +56,10 @@ public class TCPCommandHandlerClient {
         return switch (c_name) {
             case "login" -> createPacketLogin(c_args);
             case "logout" -> createPacketLogout();
-            case "searchHotel" -> createPacketHotel(c_args);
+            case "searchhotel" -> createPacketHotel(c_args);
             case "searchallhotels" -> createPacketAllHotels(c_args);
-            case "insertReview" -> createPacketReview(c_args);
-            case "showMyBadges" -> createPacketBadgeLevel();
+            case "insertreview" -> createPacketReview(c_args);
+            case "showmybadges" -> createPacketBadgeLevel();
             default -> null;
         };
     }

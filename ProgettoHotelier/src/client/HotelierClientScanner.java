@@ -45,7 +45,7 @@ public class HotelierClientScanner implements Runnable {
                     try {
 
                         // gestisco e recupero relativa risposta del comando
-                        String response = cmd_Handler.manageCommange(cmd);
+                        String response = cmd_Handler.manageCommand(cmd);
                         // stampo la rispsota
                         System.out.println("\n" + response);
 
