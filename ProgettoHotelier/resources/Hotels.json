@@ -30,7 +30,7 @@
     "quality" : 5.0
   },
   "reviewCount" : 1,
-  "rank" : 5.0,
+  "rank" : 4.85,
   "localRank" : 1
 }, {
   "id" : 3,
@@ -47,7 +47,7 @@
     "quality" : 1.0
   },
   "reviewCount" : 1,
-  "rank" : 5.0,
+  "rank" : 4.85,
   "localRank" : 2
 }, {
   "id" : 4,
@@ -81,7 +81,7 @@
     "quality" : 2.0
   },
   "reviewCount" : 1,
-  "rank" : 3.5,
+  "rank" : 3.11,
   "localRank" : 3
 }, {
   "id" : 6,
@@ -234,7 +234,7 @@
     "quality" : 2.0
   },
   "reviewCount" : 1,
-  "rank" : 3.5,
+  "rank" : 3.11,
   "localRank" : 1
 }, {
   "id" : 15,
@@ -285,7 +285,7 @@
     "quality" : 2.0
   },
   "reviewCount" : 1,
-  "rank" : 3.5,
+  "rank" : 3.11,
   "localRank" : 2
 }, {
   "id" : 18,
@@ -557,7 +557,7 @@
     "quality" : 4.0
   },
   "reviewCount" : 1,
-  "rank" : 2.5,
+  "rank" : 2.24,
   "localRank" : 1
 }, {
   "id" : 34,
@@ -1016,7 +1016,7 @@
     "quality" : 3.0
   },
   "reviewCount" : 1,
-  "rank" : 2.5,
+  "rank" : 2.24,
   "localRank" : 1
 }, {
   "id" : 61,
@@ -1951,7 +1951,7 @@
     "quality" : 5.0
   },
   "reviewCount" : 1,
-  "rank" : 5.0,
+  "rank" : 4.85,
   "localRank" : 1
 }, {
   "id" : 116,
@@ -2478,7 +2478,7 @@
     "quality" : 3.0
   },
   "reviewCount" : 1,
-  "rank" : 2.5,
+  "rank" : 2.24,
   "localRank" : 1
 }, {
   "id" : 147,
@@ -3073,7 +3073,7 @@
     "quality" : 5.0
   },
   "reviewCount" : 1,
-  "rank" : 5.0,
+  "rank" : 4.85,
   "localRank" : 1
 }, {
   "id" : 182,
@@ -3107,7 +3107,7 @@
     "quality" : 3.5
   },
   "reviewCount" : 2,
-  "rank" : 4.5,
+  "rank" : 4.045,
   "localRank" : 2
 }, {
   "id" : 184,
