@@ -33,11 +33,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: surefire-reports
-          path: target/surefire-reports/
+          path: "*/target/surefire-reports/"
           if-no-files-found: ignore
 
-      - name: Jar eseguibile
+      - name: Jar eseguibili (server e client)
         uses: actions/upload-artifact@v4
         with:
-          name: hotelier-jar
-          path: target/hotelier.jar
+          name: hotelier-jars
+          path: |
+            server/target/hotelier-server.jar
+            client/target/hotelier-client.jar
