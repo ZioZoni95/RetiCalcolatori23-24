@@ -1,0 +1,12 @@
+# Esercizi del corso (non fanno parte del progetto)
+Esercizi_Slides/
+
+# Build
+target/
+*.class
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
