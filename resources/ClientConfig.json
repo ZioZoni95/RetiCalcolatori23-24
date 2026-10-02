@@ -1,0 +1,8 @@
+{
+  "tcpPort" : 9999,
+  "rmiPort" : 1099,
+  "mcastPort" : 49152,
+  "serverAddress" : "localhost",
+  "rmiRemoteReference" : "Hotelier-Service-Program",
+  "mcastAddress" : "230.0.0.0"
+}
