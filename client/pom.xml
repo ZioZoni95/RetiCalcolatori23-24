@@ -23,6 +23,12 @@
             <groupId>com.googlecode.lanterna</groupId>
             <artifactId>lanterna</artifactId>
         </dependency>
+        <!-- il server serve solo ai test end-to-end -->
+        <dependency>
+            <groupId>hotelier</groupId>
+            <artifactId>hotelier-server</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

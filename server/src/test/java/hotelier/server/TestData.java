@@ -18,6 +18,24 @@ final class TestData {
         return new Hotel(id, name, "descrizione", city, "000", List.of("TV"), 0, Ratings.ZERO, 0, 0, 0);
     }
 
+    /** Scrive Hotels.json e una ServerConfig.json con porte libere e indirizzi di loopback. */
+    static hotelier.config.ServerConfig prepareDataDir(Path dir) throws IOException {
+        JsonStore.write(dir.resolve("Hotels.json"), List.of(
+                hotel(1, "Hotel Roma 1", "Roma"),
+                hotel(2, "Hotel Roma 2", "Roma"),
+                hotel(3, "Hotel Milano 1", "Milano")));
+        var config = new hotelier.config.ServerConfig(freePort(), freePort(), freePort(), 3600, "127.0.0.1",
+                "Hotelier-Test", "230.0.0.1");
+        JsonStore.write(dir.resolve("ServerConfig.json"), config);
+        return config;
+    }
+
+    static int freePort() throws IOException {
+        try (var socket = new java.net.ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
+    }
+
     static Services services(Path dir) throws IOException {
         JsonStore.write(dir.resolve("Hotels.json"), List.of(
                 hotel(1, "Hotel Roma 1", "Roma"),
@@ -26,6 +44,6 @@ final class TestData {
         var hotels = new HotelRepository(dir.resolve("Hotels.json"));
         var users = new UserService(dir.resolve("Users.json"));
         var reviews = new ReviewService(dir.resolve("Reviews.json"), users, hotels);
-        return new Services(users, hotels, reviews, new SessionRegistry());
+        return new Services(users, hotels, reviews, new SessionRegistry(), new EventLog());
     }
 }

@@ -31,7 +31,9 @@ public final class Session {
 
     /** Da chiamare quando la connessione si chiude: libera l'utente eventualmente collegato. */
     public void close() {
-        logout();
+        if (username != null) {
+            logout();
+        }
     }
 
     private Response login(LoginRequest request) {
@@ -46,12 +48,14 @@ public final class Session {
             return failure("Utente non esiste, si prega di effettuare la registrazione!");
         }
         if (!services.users().passwordMatches(user.get(), request.password())) {
+            services.events().log("Login fallito (password errata): " + user.get().username());
             return failure("Password errata!");
         }
         if (!services.sessions().tryLogin(user.get().username())) {
             return failure("Sessione già attiva per utente " + user.get().username() + " su un altro client");
         }
         username = user.get().username();
+        services.events().log("Login: " + username);
         return new Success("Login effettuato correttamente!");
     }
 
@@ -62,6 +66,7 @@ public final class Session {
         }
         services.sessions().logout(current);
         username = null;
+        services.events().log("Logout: " + current);
         return new Success("Logout effettuato correttamente, Arrivederci!");
     }
 
@@ -99,6 +104,8 @@ public final class Session {
             return failure("Recensione non registrata. Hotel non trovato");
         }
         services.reviews().submit(current, hotel.get(), request.rate(), ratings);
+        services.events().log("Recensione di " + current + " su " + hotel.get().name() + " ("
+                + hotel.get().city() + "): " + request.rate() + "/5");
         return new Success("Recensione registrata con successo.");
     }
 

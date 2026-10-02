@@ -1,6 +1,6 @@
-package hotelier.client;
+package hotelier.client.ui;
 
-import hotelier.client.Command.*;
+import hotelier.client.ui.Command.*;
 import hotelier.model.Ratings;
 
 import java.util.ArrayList;

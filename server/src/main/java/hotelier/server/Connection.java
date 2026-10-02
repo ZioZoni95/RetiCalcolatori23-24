@@ -27,17 +27,20 @@ final class Connection {
     private final SelectionKey key;
     private final Session session;
     private final Executor workers;
+    private final Runnable onClose;
     private final FrameReader reader = new FrameReader();
     private final Queue<ByteBuffer> outgoing = new ConcurrentLinkedQueue<>();
     private final Queue<byte[]> pending = new ArrayDeque<>();
     private boolean processing;
     private volatile boolean closed;
 
-    Connection(SocketChannel channel, SelectionKey key, Session session, Executor workers) {
+    Connection(SocketChannel channel, SelectionKey key, Session session, Executor workers,
+               Runnable onClose) {
         this.channel = channel;
         this.key = key;
         this.session = session;
         this.workers = workers;
+        this.onClose = onClose;
     }
 
     /** Legge tutti i messaggi disponibili e li accoda per l'elaborazione. */
@@ -77,6 +80,7 @@ final class Connection {
             LOG.log(System.Logger.Level.DEBUG, "Errore in chiusura del canale", e);
         }
         session.close();
+        onClose.run();
     }
 
     private void enqueue(byte[] frame) {

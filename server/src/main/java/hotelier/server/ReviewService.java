@@ -52,6 +52,10 @@ public final class ReviewService {
         hotels.addReview(hotel.id(), rate, ratings);
     }
 
+    public synchronized int count() {
+        return reviews.size();
+    }
+
     public synchronized List<Review> forHotel(int hotelId) {
         return List.copyOf(byHotel.getOrDefault(hotelId, List.of()));
     }

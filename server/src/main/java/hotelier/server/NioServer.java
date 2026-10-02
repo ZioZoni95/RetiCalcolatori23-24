@@ -12,6 +12,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Server TCP basato su NIO: un solo thread con un {@link Selector} gestisce tutte le connessioni,
@@ -24,6 +25,7 @@ public final class NioServer implements Closeable {
     private final Selector selector;
     private final ServerSocketChannel serverChannel;
     private final Services services;
+    private final AtomicInteger connections = new AtomicInteger();
     private final ExecutorService workers = Executors.newCachedThreadPool();
     private final Thread thread = new Thread(this::loop, "nio-server");
 
@@ -44,6 +46,11 @@ public final class NioServer implements Closeable {
 
     public int port() throws IOException {
         return ((InetSocketAddress) serverChannel.getLocalAddress()).getPort();
+    }
+
+    /** Numero di client attualmente connessi. */
+    public int connectionCount() {
+        return connections.get();
     }
 
     public void start() {
@@ -95,7 +102,13 @@ public final class NioServer implements Closeable {
         }
         client.configureBlocking(false);
         SelectionKey key = client.register(selector, SelectionKey.OP_READ);
-        key.attach(new Connection(client, key, new Session(services), workers));
+        String remote = String.valueOf(client.getRemoteAddress());
+        connections.incrementAndGet();
+        services.events().log("Client connesso: " + remote);
+        key.attach(new Connection(client, key, new Session(services), workers, () -> {
+            connections.decrementAndGet();
+            services.events().log("Client disconnesso: " + remote);
+        }));
     }
 
     @Override

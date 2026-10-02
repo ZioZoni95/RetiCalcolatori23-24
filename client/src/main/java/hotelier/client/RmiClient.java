@@ -18,7 +18,7 @@ final class RmiClient implements Closeable {
     private final ServerService server;
     private final RankingCache cache = new RankingCache();
     private final ClientCallback callbackStub;
-    private boolean interested;
+    private List<String> interests = List.of();
 
     RmiClient(String host, int port, String serviceName) throws Exception {
         server = (ServerService) LocateRegistry.getRegistry(host, port).lookup(serviceName);
@@ -29,27 +29,38 @@ final class RmiClient implements Closeable {
         return server.register(username, password);
     }
 
-    synchronized void registerInterests(List<String> cities) throws RemoteException {
-        server.registerCallback(callbackStub, cities);
-        interested = true;
+    /** Sostituisce le città di interesse; il server invia subito la classifica corrente di ciascuna. */
+    synchronized void setInterests(List<String> cities) throws RemoteException {
+        cache.clear();
+        interests = List.copyOf(cities);
+        server.registerCallback(callbackStub, interests);
     }
 
-    synchronized void unregisterInterests() throws RemoteException {
-        if (interested) {
-            interested = false;
+    synchronized void clearInterests() throws RemoteException {
+        boolean registered = !interests.isEmpty();
+        interests = List.of();
+        cache.clear();
+        if (registered) {
             server.unregisterCallback(callbackStub);
         }
-        cache.clear();
+    }
+
+    synchronized List<String> interests() {
+        return interests;
     }
 
     List<CityRanking> rankings() {
         return cache.snapshot();
     }
 
+    void addRankingListener(Runnable listener) {
+        cache.addListener(listener);
+    }
+
     @Override
     public void close() {
         try {
-            unregisterInterests();
+            clearInterests();
         } catch (RemoteException e) {
             // server non più raggiungibile
         }

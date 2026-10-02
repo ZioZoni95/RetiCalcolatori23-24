@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -61,6 +62,10 @@ public final class UserService {
             persist();
         }
         return Result.success("Nuovo Utente : " + username + " è stato registrato con successo");
+    }
+
+    public synchronized List<User> all() {
+        return List.copyOf(users.values());
     }
 
     public synchronized Optional<User> find(String username) {

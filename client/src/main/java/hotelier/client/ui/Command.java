@@ -1,4 +1,4 @@
-package hotelier.client;
+package hotelier.client.ui;
 
 import hotelier.model.Ratings;
 

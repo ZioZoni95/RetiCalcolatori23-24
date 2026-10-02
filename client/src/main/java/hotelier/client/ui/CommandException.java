@@ -1,4 +1,4 @@
-package hotelier.client;
+package hotelier.client.ui;
 
 /** Comando non valido: il messaggio è destinato all'utente. */
 final class CommandException extends Exception {

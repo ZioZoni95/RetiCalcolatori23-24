@@ -1,16 +1,17 @@
 package hotelier.client;
 
+import hotelier.client.ui.ClientGui;
+import hotelier.client.ui.ClientTui;
+import hotelier.client.ui.PlainClientUi;
 import hotelier.config.ClientConfig;
 import hotelier.util.JsonStore;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+import hotelier.util.LaunchOptions;
+import hotelier.util.UiMode;
 
 /**
- * Avvio del client. Uso: {@code java -cp hotelier.jar hotelier.client.ClientMain [cartella-config]}
- * (default: {@code resources}).
+ * Avvio del client.
+ * Uso: {@code java -jar hotelier-client.jar [--ui cli|tui|gui] [cartella-config]}
+ * (cartella di default: {@code data/client}; interfaccia di default: la migliore disponibile).
  */
 public final class ClientMain {
 
@@ -18,42 +19,41 @@ public final class ClientMain {
     }
 
     public static void main(String[] args) throws Exception {
-        Path dir = Path.of(args.length > 0 ? args[0] : "resources");
-        ClientConfig config = JsonStore.readOrCreate(dir.resolve("ClientConfig.json"), ClientConfig.class,
-                ClientConfig.defaults());
-
-        TcpClient tcp = null;
-        RmiClient rmi = null;
-        MulticastListener multicast = null;
+        LaunchOptions options;
         try {
-            tcp = new TcpClient(config.serverAddress(), config.tcpPort());
-            rmi = new RmiClient(config.serverAddress(), config.rmiPort(), config.rmiRemoteReference());
-            multicast = new MulticastListener(config.mcastAddress(), config.mcastPort(),
-                    text -> System.out.println("\n<Notifica Ricevuta:> " + text + "\n"));
-        } catch (Exception e) {
-            System.err.println("<Errore> Impossibile contattare il server di Hotelier: " + e);
-            close(tcp, rmi, multicast);
-            System.exit(1);
+            options = LaunchOptions.parse(args, "data/client");
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            System.err.println("Uso: hotelier-client [--ui cli|tui|gui] [cartella-config]");
+            System.exit(2);
+            return;
         }
 
-        try (var in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
-            new Cli(tcp, rmi, multicast, in, System.out).run();
-        } finally {
-            close(tcp, rmi, multicast);
+        ClientConfig config = JsonStore.readOrCreate(options.dir().resolve("ClientConfig.json"), ClientConfig.class,
+                ClientConfig.defaults());
+        HotelierClient client;
+        try {
+            client = HotelierClient.connect(config);
+        } catch (Exception e) {
+            String message = "Impossibile contattare il server di Hotelier (" + config.serverAddress() + "): " + e;
+            if (options.mode() == UiMode.GUI) {
+                ClientGui.showFatalError(message);
+            }
+            System.err.println("<Errore> " + message);
+            System.exit(1);
+            return;
         }
+
+        switch (options.mode()) {
+            case PLAIN -> PlainClientUi.run(client);
+            case TUI -> ClientTui.run(client);
+            case GUI -> {
+                ClientGui.run(client);
+                return; // il processo termina alla chiusura della finestra
+            }
+        }
+        client.close();
         // i thread RMI non sono daemon: l'uscita esplicita evita che il processo resti attivo
         System.exit(0);
-    }
-
-    private static void close(TcpClient tcp, RmiClient rmi, MulticastListener multicast) {
-        if (multicast != null) {
-            multicast.close();
-        }
-        if (rmi != null) {
-            rmi.close();
-        }
-        if (tcp != null) {
-            tcp.close();
-        }
     }
 }

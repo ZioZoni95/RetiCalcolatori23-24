@@ -26,13 +26,16 @@ public final class RmiServer implements ServerService, Closeable {
 
     private final UserService users;
     private final HotelRepository hotels;
+    private final EventLog events;
     private final Map<ClientCallback, Set<String>> callbacks = new ConcurrentHashMap<>();
     private final String name;
     private final Registry registry;
 
-    public RmiServer(UserService users, HotelRepository hotels, int port, String name) throws RemoteException {
+    public RmiServer(UserService users, HotelRepository hotels, EventLog events, int port, String name)
+            throws RemoteException {
         this.users = users;
         this.hotels = hotels;
+        this.events = events;
         this.name = name;
         ServerService stub = (ServerService) UnicastRemoteObject.exportObject(this, 0);
         this.registry = LocateRegistry.createRegistry(port);
@@ -41,11 +44,16 @@ public final class RmiServer implements ServerService, Closeable {
 
     @Override
     public Result register(String username, String password) {
-        return users.register(username, password);
+        Result result = users.register(username, password);
+        if (result.ok()) {
+            events.log("Registrazione (RMI): " + username);
+        }
+        return result;
     }
 
     @Override
     public void registerCallback(ClientCallback callback, List<String> cities) throws RemoteException {
+        events.log("Callback RMI registrata per: " + String.join(", ", cities));
         callbacks.put(callback, cities.stream()
                 .map(c -> c.toLowerCase(Locale.ROOT))
                 .collect(Collectors.toUnmodifiableSet()));
